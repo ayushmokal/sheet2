@@ -72,7 +72,7 @@ export function SQAForm() {
   const { toast } = useToast();
 
   const handleInputChange = (
-    section: keyof FormData,
+    section: string,
     field: string,
     value: string,
     index?: number
@@ -92,48 +92,52 @@ export function SQAForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
+    let script: HTMLScriptElement | null = null;
+    const cleanup = () => {
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      setIsSubmitting(false);
+    };
+
     try {
-      // Create a form data object
-      const formDataObj = new FormData();
-      formDataObj.append('data', JSON.stringify(formData));
-
-      // Create the URL with parameters
-      const url = `${APPS_SCRIPT_URL}?action=submit&data=${encodeURIComponent(JSON.stringify(formData))}`;
-
-      // Create a script element
-      const script = document.createElement('script');
-      script.src = url;
-
       // Create a unique callback name
-      const callbackName = 'googleScript' + Date.now();
+      const callbackName = 'callback_' + Date.now();
 
-      // Create the callback function
-      (window as any)[callbackName] = function(response: any) {
-        if (response.status === 'success') {
-          toast({
-            title: "Success!",
-            description: "Data has been submitted to Google Sheets successfully.",
-          });
-        } else {
-          throw new Error(response.message || 'Failed to submit data');
-        }
-        // Cleanup
-        delete (window as any)[callbackName];
-        document.body.removeChild(script);
-      };
+      // Create a promise to handle the JSONP response
+      const responsePromise = new Promise((resolve, reject) => {
+        // Set up the callback function
+        (window as any)[callbackName] = (response: any) => {
+          resolve(response);
+          delete (window as any)[callbackName];
+        };
 
-      // Add the callback to the URL
-      script.src = `${url}&callback=${callbackName}`;
+        // Create and append the script element
+        script = document.createElement('script');
+        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodeURIComponent(JSON.stringify(formData))}`;
+        
+        script.onerror = () => {
+          reject(new Error('Failed to load the script'));
+          delete (window as any)[callbackName];
+        };
 
-      // Handle errors
-      script.onerror = () => {
-        throw new Error('Failed to load the script');
-      };
+        document.body.appendChild(script);
+      });
 
-      // Append the script to the document
-      document.body.appendChild(script);
+      // Wait for the response
+      const response = await responsePromise;
+
+      if (response.status === 'success') {
+        toast({
+          title: "Success!",
+          description: "Data has been submitted to Google Sheets successfully.",
+        });
+      } else {
+        throw new Error(response.message || 'Failed to submit data');
+      }
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({
@@ -142,7 +146,7 @@ export function SQAForm() {
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      cleanup();
     }
   };
 
