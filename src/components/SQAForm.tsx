@@ -69,7 +69,7 @@ const initialFormData: FormData = {
   },
 };
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-R_FX3C-F6FhJznqnSOHuPuHqtbt0M2zdfMYATsRzogZ2IhO23FRNOsvH-1T77XdDww/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0FssUrQAkolov2k9Hp99klBki60hlvlo3bEjMA47h2Pumf_PNKTSPqAEDYJYeSL5bzQ/exec';
 
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
