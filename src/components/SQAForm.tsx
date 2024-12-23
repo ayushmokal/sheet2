@@ -125,12 +125,18 @@ export function SQAForm() {
       },
     };
     setFormData(testData);
+    toast({
+      title: "Test Data Loaded",
+      description: "You can now submit the form to test the Google Sheets integration.",
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
+    
     setIsSubmitting(true);
+    console.log("Submitting form data:", formData); // Debug log
 
     let script: HTMLScriptElement | null = null;
     const cleanup = () => {
@@ -141,18 +147,23 @@ export function SQAForm() {
     };
 
     try {
-      const callbackName = 'callback_' + Date.now();
+      const callbackName = `callback_${Date.now()}`;
+      console.log("Using callback name:", callbackName); // Debug log
 
       const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
         (window as any)[callbackName] = (response: GoogleScriptResponse) => {
+          console.log("Received response:", response); // Debug log
           resolve(response);
           delete (window as any)[callbackName];
         };
 
         script = document.createElement('script');
-        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodeURIComponent(JSON.stringify(formData))}`;
+        const encodedData = encodeURIComponent(JSON.stringify(formData));
+        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
+        console.log("Request URL:", script.src); // Debug log
         
         script.onerror = () => {
+          console.error("Script loading failed"); // Debug log
           reject(new Error('Failed to load the script'));
           delete (window as any)[callbackName];
         };
@@ -161,12 +172,15 @@ export function SQAForm() {
       });
 
       const response = await responsePromise;
+      console.log("Processing response:", response); // Debug log
 
       if (response.status === 'success') {
         toast({
           title: "Success!",
           description: "Data has been submitted to Google Sheets successfully.",
         });
+        // Optionally reset form
+        // setFormData(initialFormData);
       } else {
         throw new Error(response.message || 'Failed to submit data');
       }
@@ -174,7 +188,7 @@ export function SQAForm() {
       console.error('Error submitting form:', error);
       toast({
         title: "Error",
-        description: "Failed to submit data. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to submit data. Please try again.",
         variant: "destructive",
       });
     } finally {
