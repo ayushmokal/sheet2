@@ -27,6 +27,10 @@ export const initialFormData: FormData = {
     sqaMorph: Array(5).fill(""),
     manualMorph: Array(5).fill(""),
   },
+  qc: {
+    level1: Array(5).fill(""),
+    level2: Array(5).fill(""),
+  },
 };
 
 export const getTestData = (): FormData => ({
@@ -51,9 +55,13 @@ export const getTestData = (): FormData => ({
   accuracy: {
     sqa: ["1.0", "2.0", "3.0", "4.0", "5.0"],
     manual: ["1.1", "2.1", "3.1", "4.1", "5.1"],
-    sqaMotility: ["50", "55", "60", "65", "70"],
-    manualMotility: ["52", "57", "62", "67", "72"],
-    sqaMorph: ["12", "14", "16", "18", "20"],
-    manualMorph: ["13", "15", "17", "19", "21"],
+    sqaMotility: ["50.0", "55.0", "60.0", "65.0", "70.0"],
+    manualMotility: ["52.0", "57.0", "62.0", "67.0", "72.0"],
+    sqaMorph: ["12.0", "14.0", "16.0", "18.0", "20.0"],
+    manualMorph: ["13.0", "15.0", "17.0", "19.0", "21.0"],
+  },
+  qc: {
+    level1: ["1.0", "1.0", "1.0", "1.0", "1.0"],
+    level2: ["11.0", "1.0", "1.0", "1.0", "1.0"],
   },
 });

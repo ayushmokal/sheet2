@@ -4,11 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormHeader } from "./FormHeader";
 import { LowerLimitDetection } from "./LowerLimitDetection";
 import { PrecisionSection } from "./PrecisionSection";
+import { AccuracySection } from "./AccuracySection";
+import { QCSection } from "./QCSection";
 import { FormActions } from "./FormActions";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
 
-// Update this URL with your specific deployment URL
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxs7p4YKyHc_Y9NqOxP7oOKOWSV4Q_M57zoPr7iWkt39nykcGvdo5kQlS0InN3rFqJzPA/exec';
 
 export function SQAForm() {
@@ -133,6 +134,14 @@ export function SQAForm() {
           <PrecisionSection 
             level={2}
             data={formData.precisionLevel2}
+            handleInputChange={handleInputChange}
+          />
+          <AccuracySection
+            data={formData.accuracy}
+            handleInputChange={handleInputChange}
+          />
+          <QCSection
+            data={formData.qc}
             handleInputChange={handleInputChange}
           />
         </CardContent>

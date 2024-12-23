@@ -25,6 +25,10 @@ export interface FormData {
     sqaMorph: string[];
     manualMorph: string[];
   };
+  qc: {
+    level1: string[];
+    level2: string[];
+  };
 }
 
 export interface GoogleScriptResponse {
