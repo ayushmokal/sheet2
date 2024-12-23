@@ -8,6 +8,7 @@ import { FormActions } from "./FormActions";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
 
+// Update this URL with your specific deployment URL
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7eAjoBHYb2PLpWws8YUx5pSmpgR9uf3vJgjFiGd703Wf8nrOBWquaNnVFaswqpZ_9sw/exec';
 
 export function SQAForm() {
