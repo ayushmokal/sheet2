@@ -70,7 +70,10 @@ export function SQAForm() {
         };
 
         script = document.createElement('script');
-        const encodedData = encodeURIComponent(JSON.stringify(formData));
+        const encodedData = encodeURIComponent(JSON.stringify({
+          ...formData,
+          sheetName: 'Template' // Explicitly specify the sheet name
+        }));
         script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
         console.log("Request URL:", script.src);
         
