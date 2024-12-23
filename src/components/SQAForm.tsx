@@ -68,6 +68,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-R_FX3C-F6FhJ
 
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleInputChange = (
@@ -91,26 +92,48 @@ export function SQAForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setIsSubmitting(true);
+
     try {
-      const response = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(formData),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      // Create a form data object
+      const formDataObj = new FormData();
+      formDataObj.append('data', JSON.stringify(formData));
 
-      const result = await response.json();
+      // Create the URL with parameters
+      const url = `${APPS_SCRIPT_URL}?action=submit&data=${encodeURIComponent(JSON.stringify(formData))}`;
 
-      if (result.status === 'success') {
-        toast({
-          title: "Success!",
-          description: "Data has been submitted to Google Sheets successfully.",
-        });
-      } else {
-        throw new Error('Failed to submit data');
-      }
+      // Create a script element
+      const script = document.createElement('script');
+      script.src = url;
+
+      // Create a unique callback name
+      const callbackName = 'googleScript' + Date.now();
+
+      // Create the callback function
+      (window as any)[callbackName] = function(response: any) {
+        if (response.status === 'success') {
+          toast({
+            title: "Success!",
+            description: "Data has been submitted to Google Sheets successfully.",
+          });
+        } else {
+          throw new Error(response.message || 'Failed to submit data');
+        }
+        // Cleanup
+        delete (window as any)[callbackName];
+        document.body.removeChild(script);
+      };
+
+      // Add the callback to the URL
+      script.src = `${url}&callback=${callbackName}`;
+
+      // Handle errors
+      script.onerror = () => {
+        throw new Error('Failed to load the script');
+      };
+
+      // Append the script to the document
+      document.body.appendChild(script);
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({
@@ -118,6 +141,8 @@ export function SQAForm() {
         description: "Failed to submit data. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -145,8 +170,12 @@ export function SQAForm() {
           />
           
           <div className="flex justify-end mt-6">
-            <Button type="submit" className="bg-primary text-white">
-              Submit Data
+            <Button 
+              type="submit" 
+              className="bg-primary text-white"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Data"}
             </Button>
           </div>
         </CardContent>
