@@ -95,6 +95,38 @@ export function SQAForm() {
     });
   };
 
+  const loadTestData = () => {
+    const testData: FormData = {
+      facility: "Test Facility",
+      date: "2024-03-15",
+      technician: "Test Technician",
+      serialNumber: "TEST123",
+      lowerLimitDetection: {
+        conc: ["1.0", "2.0", "3.0", "4.0", "5.0"],
+        msc: ["10", "20", "30", "40", "50"],
+      },
+      precisionLevel1: {
+        conc: ["1.1", "1.2", "1.3", "1.4", "1.5"],
+        motility: ["60", "65", "70", "75", "80"],
+        morph: ["10", "12", "14", "16", "18"],
+      },
+      precisionLevel2: {
+        conc: ["2.1", "2.2", "2.3", "2.4", "2.5"],
+        motility: ["55", "60", "65", "70", "75"],
+        morph: ["15", "17", "19", "21", "23"],
+      },
+      accuracy: {
+        sqa: ["1.0", "2.0", "3.0", "4.0", "5.0"],
+        manual: ["1.1", "2.1", "3.1", "4.1", "5.1"],
+        sqaMotility: ["50", "55", "60", "65", "70"],
+        manualMotility: ["52", "57", "62", "67", "72"],
+        sqaMorph: ["12", "14", "16", "18", "20"],
+        manualMorph: ["13", "15", "17", "19", "21"],
+      },
+    };
+    setFormData(testData);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -157,6 +189,16 @@ export function SQAForm() {
           <CardTitle>SQA Precision / Accuracy / Lower Limit Detection Study</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex justify-end mb-4">
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={loadTestData}
+              className="mr-2"
+            >
+              Load Test Data
+            </Button>
+          </div>
           <FormHeader formData={formData} handleInputChange={handleInputChange} />
           <LowerLimitDetection 
             data={formData.lowerLimitDetection}
