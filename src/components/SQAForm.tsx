@@ -35,6 +35,11 @@ interface FormData {
   };
 }
 
+interface GoogleScriptResponse {
+  status: 'success' | 'error';
+  message?: string;
+}
+
 const initialFormData: FormData = {
   facility: "",
   date: "",
@@ -104,18 +109,14 @@ export function SQAForm() {
     };
 
     try {
-      // Create a unique callback name
       const callbackName = 'callback_' + Date.now();
 
-      // Create a promise to handle the JSONP response
-      const responsePromise = new Promise((resolve, reject) => {
-        // Set up the callback function
-        (window as any)[callbackName] = (response: any) => {
+      const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
+        (window as any)[callbackName] = (response: GoogleScriptResponse) => {
           resolve(response);
           delete (window as any)[callbackName];
         };
 
-        // Create and append the script element
         script = document.createElement('script');
         script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodeURIComponent(JSON.stringify(formData))}`;
         
@@ -127,7 +128,6 @@ export function SQAForm() {
         document.body.appendChild(script);
       });
 
-      // Wait for the response
       const response = await responsePromise;
 
       if (response.status === 'success') {
