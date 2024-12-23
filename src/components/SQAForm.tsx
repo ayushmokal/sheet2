@@ -9,8 +9,7 @@ import { QCSection } from "./QCSection";
 import { FormActions } from "./FormActions";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
-
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxs7p4YKyHc_Y9NqOxP7oOKOWSV4Q_M57zoPr7iWkt39nykcGvdo5kQlS0InN3rFqJzPA/exec';
+import { APPS_SCRIPT_URL, SPREADSHEET_CONFIG } from "@/config/constants";
 
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -73,7 +72,7 @@ export function SQAForm() {
         script = document.createElement('script');
         const encodedData = encodeURIComponent(JSON.stringify({
           ...formData,
-          sheetName: 'Template' // Explicitly specify the sheet name
+          sheetName: SPREADSHEET_CONFIG.TEMPLATE_SHEET_NAME
         }));
         script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
         console.log("Request URL:", script.src);
