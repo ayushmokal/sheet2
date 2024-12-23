@@ -9,7 +9,7 @@ import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
 
 // Update this URL with your specific deployment URL
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBgoGos14bdYcKhyIm-TgeIKyqMqZSQFAdlXNkKMwsK2kH7i1-v4iz0gJ7FUS911BYnQ/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxs7p4YKyHc_Y9NqOxP7oOKOWSV4Q_M57zoPr7iWkt39nykcGvdo5kQlS0InN3rFqJzPA/exec';
 
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
