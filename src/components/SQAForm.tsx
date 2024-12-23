@@ -62,6 +62,9 @@ const initialFormData: FormData = {
   },
 };
 
+// Replace this URL with your deployed Google Apps Script Web App URL
+const APPS_SCRIPT_URL = 'YOUR_DEPLOYED_WEB_APP_URL';
+
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const { toast } = useToast();
@@ -89,15 +92,26 @@ export function SQAForm() {
     e.preventDefault();
     
     try {
-      // Here you would typically send the data to your backend
-      // which would then update the Google Sheet
-      console.log("Form data:", formData);
-      
-      toast({
-        title: "Success!",
-        description: "Data has been submitted successfully.",
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
+
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        toast({
+          title: "Success!",
+          description: "Data has been submitted to Google Sheets successfully.",
+        });
+      } else {
+        throw new Error('Failed to submit data');
+      }
     } catch (error) {
+      console.error('Error submitting form:', error);
       toast({
         title: "Error",
         description: "Failed to submit data. Please try again.",
