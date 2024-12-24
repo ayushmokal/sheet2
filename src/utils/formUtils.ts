@@ -53,15 +53,18 @@ export const getTestData = (): FormData => ({
     morph: ["15", "17", "19", "21", "23"],
   },
   accuracy: {
-    sqa: ["1.0", "2.0", "3.0", "4.0", "5.0"],
-    manual: ["1.1", "2.1", "3.1", "4.1", "5.1"],
-    sqaMotility: ["50.0", "55.0", "60.0", "65.0", "70.0"],
-    manualMotility: ["52.0", "57.0", "62.0", "67.0", "72.0"],
-    sqaMorph: ["12.0", "14.0", "16.0", "18.0", "20.0"],
-    manualMorph: ["13.0", "15.0", "17.0", "19.0", "21.0"],
+    // Test data for R value calculation (strong correlation)
+    sqa: ["2.5", "5.0", "7.5", "10.0", "12.5"],
+    manual: ["3.0", "5.5", "8.0", "10.5", "13.0"],
+    // Test data for motility R value (moderate correlation)
+    sqaMotility: ["50", "60", "70", "80", "90"],
+    manualMotility: ["45", "55", "65", "75", "85"],
+    // Test data for morphology
+    sqaMorph: ["12", "14", "16", "18", "20"],
+    manualMorph: ["13", "15", "17", "19", "21"],
   },
   qc: {
-    level1: ["1.0", "1.0", "1.0", "1.0", "1.0"],
-    level2: ["11.0", "1.0", "1.0", "1.0", "1.0"],
+    level1: ["1.0", "1.1", "1.0", "1.2", "1.1"],
+    level2: ["2.0", "2.1", "2.0", "2.2", "2.1"],
   },
 });
