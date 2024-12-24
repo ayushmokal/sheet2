@@ -30,8 +30,8 @@ function calculateRValue(xValues, yValues) {
   
   if (validPairs.length < 2) return 0;
   
-  const x = validPairs.map(pair => pair[0]);
-  const y = validPairs.map(pair => pair[1]);
+  const x = validPairs.map(pair => Number(pair[0]));
+  const y = validPairs.map(pair => Number(pair[1]));
   
   const n = validPairs.length;
   const sumX = x.reduce((a, b) => a + b, 0);
@@ -45,14 +45,18 @@ function calculateRValue(xValues, yValues) {
   
   if (denominator === 0) return 0;
   const r = numerator / denominator;
-  return r * r; // Return R²
+  return r * r; // Return R² directly
 }
 
 function calculateSensitivity(data, referenceCutoff) {
-  const validData = data.filter(value => !isNaN(value) && value !== '');
-  const belowCutoff = validData.filter(value => value < referenceCutoff);
+  const validData = data
+    .map(value => Number(value))
+    .filter(value => !isNaN(value) && value !== '');
+    
+  if (validData.length === 0) return "N/A";
   
-  if (validData.length === 0 || belowCutoff.length === 0) return "N/A";
+  const belowCutoff = validData.filter(value => value < referenceCutoff);
+  if (belowCutoff.length === 0) return "N/A";
   
   const truePositives = belowCutoff.length;
   const falseNegatives = validData.filter(value => value >= referenceCutoff).length;
@@ -143,7 +147,6 @@ function writeFormData(sheet, data) {
   sheet.getRange('B5:H5').setValue(data.technician);
   sheet.getRange('B6:H6').setValue(data.serialNumber);
   
-  // Write all the data sections
   // Lower Limit Detection
   for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
     sheet.getRange(\`B\${12 + i}\`).setValue(data.lowerLimitDetection.conc[i]);
@@ -182,19 +185,19 @@ function writeFormData(sheet, data) {
   
   // Calculate and write R² values
   const concRSquared = calculateRValue(
-    data.accuracy.manual.map(Number),
-    data.accuracy.sqa.map(Number)
+    data.accuracy.manual.map(String),
+    data.accuracy.sqa.map(String)
   );
   sheet.getRange('I54').setValue(\`R² = \${concRSquared.toFixed(4)}\`);
   
   const motilityRSquared = calculateRValue(
-    data.accuracy.manualMotility.map(Number),
-    data.accuracy.sqaMotility.map(Number)
+    data.accuracy.manualMotility.map(String),
+    data.accuracy.sqaMotility.map(String)
   );
   sheet.getRange('I55').setValue(\`R² = \${motilityRSquared.toFixed(4)}\`);
   
   // Calculate sensitivity based on reference cutoff
   const referenceCutoff = 4; // Reference cutoff value
-  const sensitivity = calculateSensitivity(data.accuracy.sqa.map(Number), referenceCutoff);
+  const sensitivity = calculateSensitivity(data.accuracy.sqa.map(String), referenceCutoff);
   sheet.getRange('J54').setValue(sensitivity);
 }`;
