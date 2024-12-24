@@ -7,6 +7,7 @@ import { PrecisionSection } from "./PrecisionSection";
 import { AccuracySection } from "./AccuracySection";
 import { QCSection } from "./QCSection";
 import { FormActions } from "./FormActions";
+import { EmailForm } from "./EmailForm";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
 import { APPS_SCRIPT_URL, SPREADSHEET_CONFIG } from "@/config/constants";
@@ -143,6 +144,10 @@ export function SQAForm() {
             data={formData.qc}
             handleInputChange={handleInputChange}
           />
+          <div className="mt-6">
+            <CardTitle className="text-lg mb-4">Email Data</CardTitle>
+            <EmailForm />
+          </div>
         </CardContent>
       </Card>
     </form>

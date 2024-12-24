@@ -17,3 +17,9 @@ export const FORM_CONFIG = {
     QC: 'Quality Control'
   }
 };
+
+// Email configuration
+export const EMAIL_CONFIG = {
+  SUBJECT: 'SQA Data Submission',
+  TEMPLATE_ID: 'email_template'
+};
