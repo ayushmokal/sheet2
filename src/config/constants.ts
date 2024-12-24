@@ -23,6 +23,33 @@ export const APPS_SCRIPT_CODE = `
 // Replace with your actual spreadsheet ID
 const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
 
+function calculateRValue(xValues, yValues) {
+  const n = xValues.length;
+  if (n < 2) return 0;
+  
+  const sumX = xValues.reduce((a, b) => a + b, 0);
+  const sumY = yValues.reduce((a, b) => a + b, 0);
+  const sumXY = xValues.reduce((sum, x, i) => sum + x * yValues[i], 0);
+  const sumX2 = xValues.reduce((sum, x) => sum + x * x, 0);
+  const sumY2 = yValues.reduce((sum, y) => sum + y * y, 0);
+  
+  const numerator = (n * sumXY) - (sumX * sumY);
+  const denominator = Math.sqrt(((n * sumX2) - (sumX * sumX)) * ((n * sumY2) - (sumY * sumY)));
+  
+  return denominator === 0 ? 0 : numerator / denominator;
+}
+
+function calculateSensitivity(data, referenceCutoff) {
+  const belowCutoff = data.filter(value => value < referenceCutoff);
+  if (belowCutoff.length === 0) return "N/A";
+  
+  const truePositives = belowCutoff.length;
+  const falseNegatives = data.filter(value => value >= referenceCutoff).length;
+  
+  if (truePositives + falseNegatives === 0) return "N/A";
+  return ((truePositives / (truePositives + falseNegatives)) * 100).toFixed(1) + "%";
+}
+
 function doGet(e) {
   const params = e.parameter;
   const callback = params.callback;
@@ -151,4 +178,22 @@ function writeFormData(sheet, data) {
     sheet.getRange(\`B\${71 + i}\`).setValue(data.qc.level1[i]);
     sheet.getRange(\`C\${71 + i}\`).setValue(data.qc.level2[i]);
   }
+  
+  // Calculate and write R values for graphs
+  const concRValue = calculateRValue(
+    data.accuracy.manual.map(Number),
+    data.accuracy.sqa.map(Number)
+  );
+  sheet.getRange('I54').setValue(\`R = \${concRValue.toFixed(4)}\`);
+  
+  const motilityRValue = calculateRValue(
+    data.accuracy.manualMotility.map(Number),
+    data.accuracy.sqaMotility.map(Number)
+  );
+  sheet.getRange('I55').setValue(\`R = \${motilityRValue.toFixed(4)}\`);
+  
+  // Calculate sensitivity based on reference cutoff
+  const referenceCutoff = 4; // Reference cutoff value
+  const sensitivity = calculateSensitivity(data.accuracy.sqa.map(Number), referenceCutoff);
+  sheet.getRange('J54').setValue(sensitivity);
 }`;
