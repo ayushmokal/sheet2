@@ -1,13 +1,5 @@
-// Google Apps Script URL for form submission
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyALESHv-oMzoW6PYVg1QCSgzne2vZtRWrjSM3lM_eu0Zn0F_qBLSQ0245PLZhuFhHbsw/exec';
+export { SPREADSHEET_CONFIG, APPS_SCRIPT_URL } from './googleScriptConfig';
 
-// Spreadsheet configuration
-export const SPREADSHEET_CONFIG = {
-  TEMPLATE_SHEET_NAME: 'Template',
-  DEFAULT_SHEET_PREFIX: 'Data_'
-};
-
-// Form configuration
 export const FORM_CONFIG = {
   SECTIONS: {
     LOWER_LIMIT: 'Lower Limit Detection',
@@ -18,20 +10,20 @@ export const FORM_CONFIG = {
   }
 };
 
-// Apps Script Code (for reference - deploy this separately in Google Apps Script)
+// Apps Script Code (Copy this to your Google Apps Script editor)
 export const APPS_SCRIPT_CODE = `
 // Replace with your actual spreadsheet ID
 const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
 
 function calculateRValue(xValues, yValues) {
   // Filter out non-numeric and empty values
-  const validPairs = xValues.map((x, i) => [x, yValues[i]])
+  const validPairs = xValues.map((x, i) => [Number(x), Number(yValues[i])])
     .filter(([x, y]) => !isNaN(x) && !isNaN(y) && x !== '' && y !== '');
   
   if (validPairs.length < 2) return 0;
   
-  const x = validPairs.map(pair => Number(pair[0]));
-  const y = validPairs.map(pair => Number(pair[1]));
+  const x = validPairs.map(pair => pair[0]);
+  const y = validPairs.map(pair => pair[1]);
   
   const n = validPairs.length;
   const sumX = x.reduce((a, b) => a + b, 0);
