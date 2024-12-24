@@ -1,5 +1,5 @@
 // Google Apps Script URL for form submission
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxs7p4YKyHc_Y9NqOxP7oOKOWSV4Q_M57zoPr7iWkt39nykcGvdo5kQlS0InN3rFqJzPA/exec';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWd_RYufzOFulq2CCV6RZ_q-AF1RYcgisDXmEvJw9xphtq-wJ1b5Ozs74IpEPsPBoj8g/exec';
 
 // Spreadsheet configuration
 export const SPREADSHEET_CONFIG = {
