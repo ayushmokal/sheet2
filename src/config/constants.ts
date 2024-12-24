@@ -99,56 +99,88 @@ function formatDate(dateString) {
 }
 
 function writeFormData(sheet, data) {
-  // Header information (B3:H6)
+  // Header information
   sheet.getRange('B3:H3').setValue(data.facility);
   sheet.getRange('B4:H4').setValue(data.date);
   sheet.getRange('B5:H5').setValue(data.technician);
   sheet.getRange('B6:H6').setValue(data.serialNumber);
   
-  // Lower Limit Detection (starting at A8)
-  // Headers at B10:B11 and C10:C11
-  // Data in B12:B16 and C12:C16
+  // Lower Limit Detection (A8)
+  // Conc. Value column (B10:B11)
   for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
     sheet.getRange(\`B\${12 + i}\`).setValue(data.lowerLimitDetection.conc[i]);
+  }
+  // MSC Value column (C10:C11)
+  for (let i = 0; i < data.lowerLimitDetection.msc.length; i++) {
     sheet.getRange(\`C\${12 + i}\`).setValue(data.lowerLimitDetection.msc[i]);
   }
   
-  // Precision Level 1 (starting at A20)
-  // Headers at B22:B23, C22:C23, D22:D23
-  // Data in B24:B28, C24:C28, D24:D28
+  // Precision & Sensitivity - Level 1 (A20)
+  // Conc. (M/mL) (B22:B23)
   for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
     sheet.getRange(\`B\${24 + i}\`).setValue(data.precisionLevel1.conc[i]);
+  }
+  // Motility (%) (C22:C23)
+  for (let i = 0; i < data.precisionLevel1.motility.length; i++) {
     sheet.getRange(\`C\${24 + i}\`).setValue(data.precisionLevel1.motility[i]);
+  }
+  // Morph. (%) (D22:D23)
+  for (let i = 0; i < data.precisionLevel1.morph.length; i++) {
     sheet.getRange(\`D\${24 + i}\`).setValue(data.precisionLevel1.morph[i]);
   }
   
-  // Precision Level 2 (starting at A32)
-  // Headers at B34:B35, C34:C35, D34:D35
-  // Data in B36:B40, C36:C40, D36:D40
+  // Precision & Sensitivity - Level 2 (A32)
+  // Conc. (M/mL) (B34:B35)
   for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
     sheet.getRange(\`B\${36 + i}\`).setValue(data.precisionLevel2.conc[i]);
+  }
+  // Motility (%) (C34:C35)
+  for (let i = 0; i < data.precisionLevel2.motility.length; i++) {
     sheet.getRange(\`C\${36 + i}\`).setValue(data.precisionLevel2.motility[i]);
+  }
+  // Morph. (%) (D34:D35)
+  for (let i = 0; i < data.precisionLevel2.morph.length; i++) {
     sheet.getRange(\`D\${36 + i}\`).setValue(data.precisionLevel2.morph[i]);
   }
   
-  // Accuracy (starting at A44)
-  // Headers at A46:B46 (CONC), C46:D46 (MOTILITY), E46:F46 (MORPHOLOGY)
-  // Sub-headers at A47, B47, C47, D47, E47, F47
-  // Data in A48:A52, B48:B52, C48:C52, D48:D52, E48:E52, F48:F52
+  // Accuracy (Optional) (A44)
+  // CONC., M/ml (A46:B46)
+  // SQA (A47)
   for (let i = 0; i < data.accuracy.sqa.length; i++) {
     sheet.getRange(\`A\${48 + i}\`).setValue(data.accuracy.sqa[i]);
+  }
+  // Manual (B47)
+  for (let i = 0; i < data.accuracy.manual.length; i++) {
     sheet.getRange(\`B\${48 + i}\`).setValue(data.accuracy.manual[i]);
+  }
+  
+  // MOTILITY, % (C46:D46)
+  // SQA (C47)
+  for (let i = 0; i < data.accuracy.sqaMotility.length; i++) {
     sheet.getRange(\`C\${48 + i}\`).setValue(data.accuracy.sqaMotility[i]);
+  }
+  // Manual (D47)
+  for (let i = 0; i < data.accuracy.manualMotility.length; i++) {
     sheet.getRange(\`D\${48 + i}\`).setValue(data.accuracy.manualMotility[i]);
+  }
+  
+  // MORPHOLOGY, % (E46:F46)
+  // SQA (E47)
+  for (let i = 0; i < data.accuracy.sqaMorph.length; i++) {
     sheet.getRange(\`E\${48 + i}\`).setValue(data.accuracy.sqaMorph[i]);
+  }
+  // Manual (F47)
+  for (let i = 0; i < data.accuracy.manualMorph.length; i++) {
     sheet.getRange(\`F\${48 + i}\`).setValue(data.accuracy.manualMorph[i]);
   }
   
-  // QC (starting at A67)
-  // Headers at B69:B70, C69:C70
-  // Data in B71:B75, C71:C75
+  // Precision & Sensitivity - QC (A67)
+  // Level 1 Conc. (M/mL) (B69:B70)
   for (let i = 0; i < data.qc.level1.length; i++) {
     sheet.getRange(\`B\${71 + i}\`).setValue(data.qc.level1[i]);
+  }
+  // Level 2 Conc. (M/mL) (C69:C70)
+  for (let i = 0; i < data.qc.level2.length; i++) {
     sheet.getRange(\`C\${71 + i}\`).setValue(data.qc.level2[i]);
   }
 }`;
