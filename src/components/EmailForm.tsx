@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { APPS_SCRIPT_URL } from "@/config/constants";
+import { EmailResponse } from "@/types/form";
 
 export function EmailForm() {
   const [email, setEmail] = useState("");
@@ -19,8 +20,8 @@ export function EmailForm() {
     try {
       const callbackName = `email_callback_${Date.now()}`;
       
-      const responsePromise = new Promise((resolve, reject) => {
-        (window as any)[callbackName] = (response: any) => {
+      const responsePromise = new Promise<EmailResponse>((resolve, reject) => {
+        (window as any)[callbackName] = (response: EmailResponse) => {
           resolve(response);
           delete (window as any)[callbackName];
         };

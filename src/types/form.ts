@@ -35,3 +35,7 @@ export interface GoogleScriptResponse {
   status: 'success' | 'error';
   message?: string;
 }
+
+export interface EmailResponse extends GoogleScriptResponse {
+  // Add any additional email-specific response fields here if needed
+}
