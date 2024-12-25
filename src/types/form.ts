@@ -24,6 +24,12 @@ export interface FormData {
     manualMotility: string[];
     sqaMorph: string[];
     manualMorph: string[];
+    morphGradeFinal: {
+      tp: string;
+      tn: string;
+      fp: string;
+      fn: string;
+    };
   };
   qc: {
     level1: string[];

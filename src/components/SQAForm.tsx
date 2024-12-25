@@ -6,6 +6,7 @@ import { LowerLimitDetection } from "./LowerLimitDetection";
 import { PrecisionSection } from "./PrecisionSection";
 import { AccuracySection } from "./AccuracySection";
 import { QCSection } from "./QCSection";
+import { MorphGradeFinalSection } from "./MorphGradeFinalSection";
 import { FormActions } from "./FormActions";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
@@ -23,6 +24,20 @@ export function SQAForm() {
     index?: number
   ) => {
     setFormData((prev) => {
+      if (field.includes('.')) {
+        const [parentField, childField] = field.split('.');
+        return {
+          ...prev,
+          [section]: {
+            ...prev[section],
+            [parentField]: {
+              ...prev[section][parentField],
+              [childField]: value
+            }
+          }
+        };
+      }
+      
       if (typeof index === "number" && typeof prev[section] === "object") {
         const sectionData = { ...prev[section] };
         if (Array.isArray(sectionData[field])) {
@@ -137,6 +152,10 @@ export function SQAForm() {
           />
           <AccuracySection
             data={formData.accuracy}
+            handleInputChange={handleInputChange}
+          />
+          <MorphGradeFinalSection
+            data={formData.accuracy.morphGradeFinal}
             handleInputChange={handleInputChange}
           />
           <QCSection
