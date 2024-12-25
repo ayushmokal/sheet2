@@ -1,6 +1,5 @@
 export const emailHandlerScript = `
 function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEmail) {
-  // Get the newly created sheet
   const sheet = originalSpreadsheet.getSheetByName(sheetName);
   if (!sheet) {
     throw new Error('Sheet not found: ' + sheetName);
