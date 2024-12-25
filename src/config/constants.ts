@@ -1,16 +1,11 @@
-export { SPREADSHEET_CONFIG, APPS_SCRIPT_URL } from './googleScriptConfig';
-
-export const FORM_CONFIG = {
-  SECTIONS: {
-    LOWER_LIMIT: 'Lower Limit Detection',
-    PRECISION_1: 'Precision Level 1',
-    PRECISION_2: 'Precision Level 2',
-    ACCURACY: 'Accuracy',
-    QC: 'Quality Control'
-  }
+export const SPREADSHEET_CONFIG = {
+  TEMPLATE_SHEET_NAME: 'Template',
+  DEFAULT_SHEET_PREFIX: 'Data_'
 };
 
-// Apps Script Code (Copy this to your Google Apps Script editor)
+// Replace with your actual spreadsheet ID after deploying the Apps Script
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCOUWu7lNnkl5Hi0W0TdPGuSUUahchZDlyV2fFdGwJk89DYMqfZML660ZatGnNoEM3qA/exec';
+
 export const APPS_SCRIPT_CODE = `
 // Replace with your actual spreadsheet ID
 const SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
