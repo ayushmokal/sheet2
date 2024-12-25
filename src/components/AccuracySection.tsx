@@ -9,8 +9,14 @@ interface AccuracySectionProps {
     manualMotility: string[];
     sqaMorph: string[];
     manualMorph: string[];
+    morphGradeFinal: {
+      tp: string;
+      tn: string;
+      fp: string;
+      fn: string;
+    };
   };
-  handleInputChange: (section: string, field: string, value: string, index: number) => void;
+  handleInputChange: (section: string, field: string, value: string, index?: number) => void;
 }
 
 export function AccuracySection({ data, handleInputChange }: AccuracySectionProps) {
@@ -102,6 +108,44 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-medium mb-2">Morphology Grade Final</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">True Positive (TP)</label>
+                <Input
+                  type="number"
+                  value={data.morphGradeFinal.tp}
+                  onChange={(e) => handleInputChange("accuracy", "morphGradeFinal.tp", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">True Negative (TN)</label>
+                <Input
+                  type="number"
+                  value={data.morphGradeFinal.tn}
+                  onChange={(e) => handleInputChange("accuracy", "morphGradeFinal.tn", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">False Positive (FP)</label>
+                <Input
+                  type="number"
+                  value={data.morphGradeFinal.fp}
+                  onChange={(e) => handleInputChange("accuracy", "morphGradeFinal.fp", e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">False Negative (FN)</label>
+                <Input
+                  type="number"
+                  value={data.morphGradeFinal.fn}
+                  onChange={(e) => handleInputChange("accuracy", "morphGradeFinal.fn", e.target.value)}
+                />
+              </div>
             </div>
           </div>
         </div>
