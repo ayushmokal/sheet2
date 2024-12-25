@@ -50,25 +50,46 @@ function generateUniqueSheetName(spreadsheet, data) {
 
 function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEmail) {
   // Create a new spreadsheet
-  const newSpreadsheet = SpreadsheetApp.create(\`SQA Data - \${sheetName}\`);
+  const newSpreadsheet = SpreadsheetApp.create(`SQA Data - ${sheetName}`);
   const originalSheet = originalSpreadsheet.getSheetByName(sheetName);
+  
+  // Get the first sheet of the new spreadsheet and clear it
+  const targetSheet = newSpreadsheet.getSheets()[0];
+  targetSheet.clear();
+  
+  // Match sheet properties
+  targetSheet.setFrozenRows(originalSheet.getFrozenRows());
+  targetSheet.setFrozenColumns(originalSheet.getFrozenColumns());
   
   // Copy the data from the original sheet to the new spreadsheet
   const sourceRange = originalSheet.getDataRange();
   const sourceValues = sourceRange.getValues();
   const sourceFormulas = sourceRange.getFormulas();
+  const numRows = sourceValues.length;
+  const numCols = sourceValues[0].length;
   
-  // Get the first sheet of the new spreadsheet
-  const targetSheet = newSpreadsheet.getSheets()[0];
+  // Ensure target sheet has enough rows and columns
+  if (targetSheet.getMaxRows() < numRows) {
+    targetSheet.insertRows(1, numRows - targetSheet.getMaxRows());
+  }
+  if (targetSheet.getMaxColumns() < numCols) {
+    targetSheet.insertColumns(1, numCols - targetSheet.getMaxColumns());
+  }
   
-  // Set the same column widths
-  const numColumns = sourceRange.getNumColumns();
-  for (let i = 1; i <= numColumns; i++) {
+  // Set column widths
+  for (let i = 1; i <= numCols; i++) {
     targetSheet.setColumnWidth(i, originalSheet.getColumnWidth(i));
   }
   
+  // Set row heights
+  for (let i = 1; i <= numRows; i++) {
+    targetSheet.setRowHeight(i, originalSheet.getRowHeight(i));
+  }
+  
+  // Get target range
+  const targetRange = targetSheet.getRange(1, 1, numRows, numCols);
+  
   // Copy values and formulas
-  const targetRange = targetSheet.getRange(1, 1, sourceValues.length, sourceValues[0].length);
   targetRange.setValues(sourceValues);
   
   // Apply formulas where they exist
@@ -80,7 +101,7 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
     }
   }
   
-  // Copy formatting
+  // Copy all formatting
   targetRange.setBackgrounds(sourceRange.getBackgrounds());
   targetRange.setFontColors(sourceRange.getFontColors());
   targetRange.setFontFamilies(sourceRange.getFontFamilies());
@@ -89,7 +110,36 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
   targetRange.setFontWeights(sourceRange.getFontWeights());
   targetRange.setHorizontalAlignments(sourceRange.getHorizontalAlignments());
   targetRange.setVerticalAlignments(sourceRange.getVerticalAlignments());
-
+  targetRange.setNumberFormats(sourceRange.getNumberFormats());
+  targetRange.setTextRotations(sourceRange.getTextRotations());
+  targetRange.setWraps(sourceRange.getWraps());
+  
+  // Copy merged ranges
+  const mergedRanges = sourceRange.getMergedRanges();
+  mergedRanges.forEach(range => {
+    const row = range.getRow();
+    const col = range.getColumn();
+    const numRows = range.getNumRows();
+    const numCols = range.getNumColumns();
+    targetSheet.getRange(row, col, numRows, numCols).merge();
+  });
+  
+  // Copy conditional formatting rules
+  const rules = originalSheet.getConditionalFormatRules();
+  targetSheet.setConditionalFormatRules(rules);
+  
+  // Copy data validation rules
+  for (let i = 1; i <= numRows; i++) {
+    for (let j = 1; j <= numCols; j++) {
+      const sourceCell = originalSheet.getRange(i, j);
+      const targetCell = targetSheet.getRange(i, j);
+      const validation = sourceCell.getDataValidation();
+      if (validation != null) {
+        targetCell.setDataValidation(validation);
+      }
+    }
+  }
+  
   // Safely copy borders if they exist
   const sourceBorder = sourceRange.getBorder();
   if (sourceBorder) {
@@ -111,17 +161,17 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
   // Share the spreadsheet with the recipient
   newSpreadsheet.addEditor(recipientEmail);
   
-  const emailSubject = \`New SQA Data Submission - \${sheetName}\`;
-  const emailBody = \`
+  const emailSubject = `New SQA Data Submission - ${sheetName}`;
+  const emailBody = `
     A new SQA data submission has been recorded.
     
-    Sheet Name: \${sheetName}
-    Date: \${new Date().toLocaleDateString()}
+    Sheet Name: ${sheetName}
+    Date: ${new Date().toLocaleDateString()}
     
-    You can access the spreadsheet here: \${newSpreadsheetUrl}
+    You can access the spreadsheet here: ${newSpreadsheetUrl}
     
     This is an automated message.
-  \`;
+  `;
   
   GmailApp.sendEmail(
     recipientEmail,
