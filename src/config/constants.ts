@@ -56,6 +56,35 @@ function generateUniqueSheetName(spreadsheet, data) {
   return baseSheetName;
 }
 
+function sendEmailWithSheet(spreadsheet, sheetName, recipientEmail) {
+  const sheet = spreadsheet.getSheetByName(sheetName);
+  const pdfBlob = DriveApp.getFileById(spreadsheet.getId()).getAs('application/pdf');
+  
+  const emailSubject = \`New SQA Data Submission - \${sheetName}\`;
+  const emailBody = \`
+    A new SQA data submission has been recorded.
+    
+    Sheet Name: \${sheetName}
+    Date: \${new Date().toLocaleDateString()}
+    
+    Please find the attached PDF of the submission.
+    
+    This is an automated message.
+  \`;
+  
+  GmailApp.sendEmail(
+    recipientEmail,
+    emailSubject,
+    emailBody,
+    {
+      attachments: [pdfBlob],
+      name: 'SQA Data System'
+    }
+  );
+  
+  return true;
+}
+
 function handleSubmit(data) {
   console.log("Starting handleSubmit with data:", data);
   
@@ -145,6 +174,11 @@ function handleSubmit(data) {
       newSheet.getRange(\`C\${71 + i}\`).setValue(data.qc.level2[i]);
     }
     console.log("Wrote QC data");
+
+    // Send email if recipient is provided
+    if (data.emailTo) {
+      sendEmailWithSheet(ss, newSheetName, data.emailTo);
+    }
 
     return {
       status: 'success',

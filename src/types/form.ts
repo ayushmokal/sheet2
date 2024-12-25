@@ -3,6 +3,7 @@ export interface FormData {
   date: string;
   technician: string;
   serialNumber: string;
+  emailTo?: string;
   lowerLimitDetection: {
     conc: string[];
     msc: string[];

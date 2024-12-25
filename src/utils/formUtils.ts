@@ -1,23 +1,22 @@
-import { FormData } from "@/types/form";
-
-export const initialFormData: FormData = {
+export const initialFormData = {
   facility: "",
   date: "",
   technician: "",
   serialNumber: "",
+  emailTo: "",
   lowerLimitDetection: {
     conc: Array(5).fill(""),
-    msc: Array(5).fill(""),
+    msc: Array(5).fill("")
   },
   precisionLevel1: {
     conc: Array(5).fill(""),
     motility: Array(5).fill(""),
-    morph: Array(5).fill(""),
+    morph: Array(5).fill("")
   },
   precisionLevel2: {
     conc: Array(5).fill(""),
     motility: Array(5).fill(""),
-    morph: Array(5).fill(""),
+    morph: Array(5).fill("")
   },
   accuracy: {
     sqa: Array(5).fill(""),
@@ -30,50 +29,51 @@ export const initialFormData: FormData = {
       tp: "",
       tn: "",
       fp: "",
-      fn: "",
-    },
+      fn: ""
+    }
   },
   qc: {
     level1: Array(5).fill(""),
-    level2: Array(5).fill(""),
-  },
+    level2: Array(5).fill("")
+  }
 };
 
-export const getTestData = (): FormData => ({
+export const getTestData = () => ({
   facility: "Test Facility",
-  date: "2024-03-15",
-  technician: "Test Technician",
+  date: "2024-02-14",
+  technician: "John Doe",
   serialNumber: "TEST123",
+  emailTo: "test@example.com",
   lowerLimitDetection: {
-    conc: ["1.0", "2.0", "3.0", "4.0", "5.0"],
-    msc: ["10", "20", "30", "40", "50"],
+    conc: ["0.1", "0.2", "0.3", "0.4", "0.5"],
+    msc: ["1", "2", "3", "4", "5"]
   },
   precisionLevel1: {
-    conc: ["156.9", "149.4", "147.1", "147.1", "147.1"],
-    motility: ["43.0", "45.0", "45.0", "46.0", "45.0"],
-    morph: ["6.0", "6.0", "6.0", "7.0", "7.0"],
+    conc: ["1", "2", "3", "4", "5"],
+    motility: ["10", "20", "30", "40", "50"],
+    morph: ["1", "2", "3", "4", "5"]
   },
   precisionLevel2: {
-    conc: ["11.2", "51.7", "47.0", "63.0", "149.4"],
-    motility: ["4.0", "59.0", "48.0", "45.0", "45.0"],
-    morph: ["6.0", "6.0", "6.0", "7.0", "7.0"],
+    conc: ["6", "7", "8", "9", "10"],
+    motility: ["60", "70", "80", "90", "100"],
+    morph: ["6", "7", "8", "9", "10"]
   },
   accuracy: {
-    sqa: ["11.2", "51.7", "47.0", "63.0", "149.4"],
-    manual: ["18.0", "47.8", "44.9", "45.1", "141.1"],
-    sqaMotility: ["4.0", "59.0", "48.0", "45.0", "45.0"],
-    manualMotility: ["3.3", "57.5", "41.0", "54.0", "54.0"],
-    sqaMorph: ["N/A", "N/A", "N/A", "N/A", "N/A"],
-    manualMorph: ["N/A", "N/A", "N/A", "N/A", "N/A"],
+    sqa: ["1", "2", "3", "4", "5"],
+    manual: ["1.1", "2.1", "3.1", "4.1", "5.1"],
+    sqaMotility: ["10", "20", "30", "40", "50"],
+    manualMotility: ["11", "21", "31", "41", "51"],
+    sqaMorph: ["1", "2", "3", "4", "5"],
+    manualMorph: ["1.1", "2.1", "3.1", "4.1", "5.1"],
     morphGradeFinal: {
-      tp: "85",
+      tp: "95",
       tn: "90",
       fp: "5",
-      fn: "10",
-    },
+      fn: "10"
+    }
   },
   qc: {
-    level1: ["1.0", "1.1", "1.0", "1.2", "1.1"],
-    level2: ["2.0", "2.1", "2.0", "2.2", "2.1"],
-  },
+    level1: ["1", "2", "3", "4", "5"],
+    level2: ["6", "7", "8", "9", "10"]
+  }
 });
