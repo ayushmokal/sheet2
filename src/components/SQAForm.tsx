@@ -54,15 +54,12 @@ export function SQAForm() {
       const callbackName = `callback_${Date.now()}`;
       console.log("Using callback name:", callbackName);
 
-      // Create a promise that will resolve when the callback is called
       const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
-        // Set timeout to handle script loading failures
         const timeoutId = setTimeout(() => {
           reject(new Error('Request timed out after 30 seconds'));
           cleanup();
         }, 30000);
 
-        // Create the callback function
         (window as any)[callbackName] = (response: GoogleScriptResponse) => {
           clearTimeout(timeoutId);
           console.log("Received response:", response);
@@ -70,8 +67,10 @@ export function SQAForm() {
           cleanup();
         };
 
-        // Create and append the script
         const script = document.createElement('script');
+        script.async = true;
+        script.defer = true;
+        
         const dataToSubmit = {
           ...formData,
           sheetName: SPREADSHEET_CONFIG.TEMPLATE_SHEET_NAME
@@ -79,18 +78,18 @@ export function SQAForm() {
         console.log("Data being sent to Google Sheets:", dataToSubmit);
         
         const encodedData = encodeURIComponent(JSON.stringify(dataToSubmit));
-        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
+        const timestamp = new Date().getTime();
+        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}&_=${timestamp}`;
         console.log("Request URL:", script.src);
         
         script.onerror = () => {
           clearTimeout(timeoutId);
-          reject(new Error('Failed to connect to Google Sheets. Please try again.'));
+          reject(new Error('Failed to connect to Google Sheets. Please check your internet connection and try again.'));
           cleanup();
         };
 
         document.body.appendChild(script);
 
-        // Cleanup function
         function cleanup() {
           delete (window as any)[callbackName];
           if (script.parentNode) {
@@ -115,7 +114,7 @@ export function SQAForm() {
       toast({
         title: "Error",
         description: error instanceof Error 
-          ? `Failed to submit data: ${error.message}` 
+          ? `Failed to submit data: ${error.message}. Please ensure you're connected to the internet and try again.` 
           : "Failed to submit data. Please try again.",
         variant: "destructive",
       });
