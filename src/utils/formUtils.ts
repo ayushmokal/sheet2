@@ -63,8 +63,8 @@ export const getTestData = (): FormData => ({
     manual: ["18.0", "47.8", "44.9", "45.1", "141.1"],
     sqaMotility: ["4.0", "59.0", "48.0", "45.0", "45.0"],
     manualMotility: ["3.3", "57.5", "41.0", "54.0", "54.0"],
-    sqaMorph: ["N/A", "N/A", "N/A", "N/A", "N/A"],
-    manualMorph: ["N/A", "N/A", "N/A", "N/A", "N/A"],
+    sqaMorph: ["1.0", "1.0", "1.0", "1.0", "1.0"],
+    manualMorph: ["1.0", "1.0", "1.0", "1.0", "1.0"],
     morphGradeFinal: {
       tp: "10",
       tn: "8",
