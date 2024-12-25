@@ -4,7 +4,7 @@ export const SPREADSHEET_CONFIG = {
 };
 
 // Replace with your actual spreadsheet ID
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3hUxVrG6T4KIkXDW4r-nLcygw_4-TfIKP76v0W3dznl184X_CBJz-XSgOFI4wwVWzkw/exec';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKyH2hyCKZeA18Lvj7Y6OdzmfNXja1LO7cTlzDL7w4B9jW0pqRAk0gueiA-MWJmxGXYQ/exec';
 
 export const APPS_SCRIPT_CODE = `
 // Replace with your actual spreadsheet ID
