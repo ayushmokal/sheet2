@@ -70,15 +70,18 @@ export function SQAForm() {
         };
 
         script = document.createElement('script');
-        const encodedData = encodeURIComponent(JSON.stringify({
+        const dataToSubmit = {
           ...formData,
           sheetName: SPREADSHEET_CONFIG.TEMPLATE_SHEET_NAME
-        }));
+        };
+        console.log("Data being sent to Google Sheets:", dataToSubmit);
+        
+        const encodedData = encodeURIComponent(JSON.stringify(dataToSubmit));
         script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
         console.log("Request URL:", script.src);
         
-        script.onerror = () => {
-          console.error("Script loading failed");
+        script.onerror = (error) => {
+          console.error("Script loading failed:", error);
           reject(new Error('Failed to load the script'));
           delete (window as any)[callbackName];
         };
