@@ -13,8 +13,8 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
   copySheetData(originalSheet, targetSheet);
   copySheetFormatting(originalSheet.getDataRange(), targetSheet.getRange(1, 1, originalSheet.getLastRow(), originalSheet.getLastColumn()));
   
-  // Generate PDF
-  const pdfBlob = targetSheet.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
+  // Generate PDF - Fixed: Using the spreadsheet object instead of the sheet
+  const pdfBlob = newSpreadsheet.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
   
   // Share and send email
   newSpreadsheet.addEditor(recipientEmail);
