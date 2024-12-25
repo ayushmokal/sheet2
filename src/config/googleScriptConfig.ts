@@ -1,7 +1,5 @@
 export const SPREADSHEET_CONFIG = {
-  TEMPLATE_SHEET_NAME: 'Template',
-  DEFAULT_SHEET_PREFIX: 'Data_'
+  TEMPLATE_SHEET_NAME: 'Template'
 };
 
-// Updated Apps Script URL
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLCHaRLsYYLm7LHJhrKhIIo99mq_pzbvagYOjr_Fe6JQ19YaZlO_5MkWdMh9EOVcMQhQ/exec';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLVUMR7fyP5Qwk7hIIJ8MtNXmF2VQbddVZGjppxOMg_p1N1GDCtPqNtaxj7PZPH1YDbQ/exec';
