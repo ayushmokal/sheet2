@@ -55,6 +55,8 @@ export function SQAForm() {
       console.log("Using callback name:", callbackName);
 
       const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
+        let scriptElement: HTMLScriptElement | null = null;
+        
         const timeoutId = setTimeout(() => {
           reject(new Error('Request timed out after 30 seconds'));
           cleanup();
@@ -67,34 +69,46 @@ export function SQAForm() {
           cleanup();
         };
 
-        const script = document.createElement('script');
-        script.async = true;
-        script.defer = true;
-        
-        const dataToSubmit = {
-          ...formData,
-          sheetName: SPREADSHEET_CONFIG.TEMPLATE_SHEET_NAME
-        };
-        console.log("Data being sent to Google Sheets:", dataToSubmit);
-        
-        const encodedData = encodeURIComponent(JSON.stringify(dataToSubmit));
-        const timestamp = new Date().getTime();
-        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}&_=${timestamp}`;
-        console.log("Request URL:", script.src);
-        
-        script.onerror = () => {
-          clearTimeout(timeoutId);
-          reject(new Error('Failed to connect to Google Sheets. Please check your internet connection and try again.'));
-          cleanup();
-        };
-
-        document.body.appendChild(script);
-
         function cleanup() {
           delete (window as any)[callbackName];
-          if (script.parentNode) {
-            script.parentNode.removeChild(script);
+          if (scriptElement && scriptElement.parentNode) {
+            scriptElement.parentNode.removeChild(scriptElement);
           }
+        }
+
+        try {
+          scriptElement = document.createElement('script');
+          scriptElement.async = true;
+          scriptElement.defer = true;
+          
+          const dataToSubmit = {
+            ...formData,
+            sheetName: SPREADSHEET_CONFIG.TEMPLATE_SHEET_NAME
+          };
+          console.log("Data being sent to Google Sheets:", dataToSubmit);
+          
+          const encodedData = encodeURIComponent(JSON.stringify(dataToSubmit));
+          const timestamp = new Date().getTime();
+          const url = new URL(APPS_SCRIPT_URL);
+          url.searchParams.append('callback', callbackName);
+          url.searchParams.append('action', 'submit');
+          url.searchParams.append('data', encodedData);
+          url.searchParams.append('_', timestamp.toString());
+          
+          scriptElement.src = url.toString();
+          console.log("Request URL:", scriptElement.src);
+          
+          scriptElement.onerror = () => {
+            clearTimeout(timeoutId);
+            reject(new Error('Failed to connect to Google Sheets. Please check your internet connection and try again.'));
+            cleanup();
+          };
+
+          document.body.appendChild(scriptElement);
+        } catch (error) {
+          clearTimeout(timeoutId);
+          reject(error);
+          cleanup();
         }
       });
 
