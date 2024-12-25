@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 
 interface LowerLimitDetectionProps {
   data: {
@@ -10,6 +11,21 @@ interface LowerLimitDetectionProps {
 }
 
 export function LowerLimitDetection({ data, handleInputChange }: LowerLimitDetectionProps) {
+  const { toast } = useToast();
+
+  const validateNonZero = (value: string, field: string, index: number) => {
+    const numValue = parseFloat(value);
+    if (value && numValue === 0) {
+      toast({
+        title: "Invalid Input",
+        description: "Value cannot be zero",
+        variant: "destructive",
+      });
+      return;
+    }
+    handleInputChange("lowerLimitDetection", field, value, index);
+  };
+
   return (
     <Card className="mt-6">
       <CardHeader>
@@ -25,7 +41,7 @@ export function LowerLimitDetection({ data, handleInputChange }: LowerLimitDetec
                   type="number"
                   step="0.01"
                   value={data.conc[index]}
-                  onChange={(e) => handleInputChange("lowerLimitDetection", "conc", e.target.value, index)}
+                  onChange={(e) => validateNonZero(e.target.value, "conc", index)}
                 />
               </div>
               <div className="space-y-2">
@@ -34,7 +50,7 @@ export function LowerLimitDetection({ data, handleInputChange }: LowerLimitDetec
                   type="number"
                   step="0.01"
                   value={data.msc[index]}
-                  onChange={(e) => handleInputChange("lowerLimitDetection", "msc", e.target.value, index)}
+                  onChange={(e) => validateNonZero(e.target.value, "msc", index)}
                 />
               </div>
             </div>
