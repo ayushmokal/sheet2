@@ -48,9 +48,61 @@ function generateUniqueSheetName(spreadsheet, data) {
   return baseSheetName;
 }
 
-function sendEmailWithSheet(spreadsheet, sheetName, recipientEmail) {
-  const sheet = spreadsheet.getSheetByName(sheetName);
-  const pdfBlob = DriveApp.getFileById(spreadsheet.getId()).getAs('application/pdf');
+function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEmail) {
+  // Create a new spreadsheet
+  const newSpreadsheet = SpreadsheetApp.create(\`SQA Data - \${sheetName}\`);
+  const originalSheet = originalSpreadsheet.getSheetByName(sheetName);
+  
+  // Copy the data from the original sheet to the new spreadsheet
+  const sourceRange = originalSheet.getDataRange();
+  const sourceValues = sourceRange.getValues();
+  const sourceFormulas = sourceRange.getFormulas();
+  
+  // Get the first sheet of the new spreadsheet
+  const targetSheet = newSpreadsheet.getSheets()[0];
+  
+  // Set the same column widths
+  const numColumns = sourceRange.getNumColumns();
+  for (let i = 1; i <= numColumns; i++) {
+    targetSheet.setColumnWidth(i, originalSheet.getColumnWidth(i));
+  }
+  
+  // Copy values and formulas
+  const targetRange = targetSheet.getRange(1, 1, sourceValues.length, sourceValues[0].length);
+  targetRange.setValues(sourceValues);
+  
+  // Apply formulas where they exist
+  for (let i = 0; i < sourceFormulas.length; i++) {
+    for (let j = 0; j < sourceFormulas[i].length; j++) {
+      if (sourceFormulas[i][j] !== '') {
+        targetSheet.getRange(i + 1, j + 1).setFormula(sourceFormulas[i][j]);
+      }
+    }
+  }
+  
+  // Copy formatting
+  targetRange.setBackgrounds(sourceRange.getBackgrounds());
+  targetRange.setFontColors(sourceRange.getFontColors());
+  targetRange.setFontFamilies(sourceRange.getFontFamilies());
+  targetRange.setFontLines(sourceRange.getFontLines());
+  targetRange.setFontStyles(sourceRange.getFontStyles());
+  targetRange.setFontWeights(sourceRange.getFontWeights());
+  targetRange.setHorizontalAlignments(sourceRange.getHorizontalAlignments());
+  targetRange.setVerticalAlignments(sourceRange.getVerticalAlignments());
+  targetRange.setBorders(
+    sourceRange.getBorder().getTop(),
+    sourceRange.getBorder().getLeft(),
+    sourceRange.getBorder().getBottom(),
+    sourceRange.getBorder().getRight(),
+    sourceRange.getBorder().getVertical(),
+    sourceRange.getBorder().getHorizontal()
+  );
+  
+  // Get the URL of the new spreadsheet
+  const newSpreadsheetUrl = newSpreadsheet.getUrl();
+  
+  // Share the spreadsheet with the recipient
+  newSpreadsheet.addEditor(recipientEmail);
   
   const emailSubject = \`New SQA Data Submission - \${sheetName}\`;
   const emailBody = \`
@@ -59,7 +111,7 @@ function sendEmailWithSheet(spreadsheet, sheetName, recipientEmail) {
     Sheet Name: \${sheetName}
     Date: \${new Date().toLocaleDateString()}
     
-    Please find the attached PDF of the submission.
+    You can access the spreadsheet here: \${newSpreadsheetUrl}
     
     This is an automated message.
   \`;
@@ -69,7 +121,6 @@ function sendEmailWithSheet(spreadsheet, sheetName, recipientEmail) {
     emailSubject,
     emailBody,
     {
-      attachments: [pdfBlob],
       name: 'SQA Data System'
     }
   );
@@ -167,9 +218,9 @@ function handleSubmit(data) {
     }
     console.log("Wrote QC data");
 
-    // Send email if recipient is provided
+    // Send email with new spreadsheet if recipient is provided
     if (data.emailTo) {
-      sendEmailWithSheet(ss, newSheetName, data.emailTo);
+      sendEmailWithNewSpreadsheet(ss, newSheetName, data.emailTo);
     }
 
     return {
