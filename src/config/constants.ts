@@ -13,49 +13,7 @@ export const FORM_CONFIG = {
 // Apps Script Code (Copy this to your Google Apps Script editor)
 export const APPS_SCRIPT_CODE = `
 // Replace with your actual spreadsheet ID
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID';
-
-function calculateRValue(xValues, yValues) {
-  // Filter out non-numeric and empty values
-  const validPairs = xValues.map((x, i) => [Number(x), Number(yValues[i])])
-    .filter(([x, y]) => !isNaN(x) && !isNaN(y) && x !== '' && y !== '');
-  
-  if (validPairs.length < 2) return 0;
-  
-  const x = validPairs.map(pair => pair[0]);
-  const y = validPairs.map(pair => pair[1]);
-  
-  const n = validPairs.length;
-  const sumX = x.reduce((a, b) => a + b, 0);
-  const sumY = y.reduce((a, b) => a + b, 0);
-  const sumXY = x.reduce((sum, x, i) => sum + x * y[i], 0);
-  const sumX2 = x.reduce((sum, x) => sum + x * x, 0);
-  const sumY2 = y.reduce((sum, y) => sum + y * y, 0);
-  
-  const numerator = (n * sumXY) - (sumX * sumY);
-  const denominator = Math.sqrt(((n * sumX2) - (sumX * sumX)) * ((n * sumY2) - (sumY * sumY)));
-  
-  if (denominator === 0) return 0;
-  const r = numerator / denominator;
-  return r * r; // Return R² directly
-}
-
-function calculateSensitivity(data, referenceCutoff) {
-  const validData = data
-    .map(value => Number(value))
-    .filter(value => !isNaN(value) && value !== '');
-    
-  if (validData.length === 0) return "N/A";
-  
-  const belowCutoff = validData.filter(value => value < referenceCutoff);
-  if (belowCutoff.length === 0) return "N/A";
-  
-  const truePositives = belowCutoff.length;
-  const falseNegatives = validData.filter(value => value >= referenceCutoff).length;
-  
-  if (truePositives + falseNegatives === 0) return "N/A";
-  return ((truePositives / (truePositives + falseNegatives)) * 100).toFixed(1) + "%";
-}
+const SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
 
 function doGet(e) {
   const params = e.parameter;
@@ -88,27 +46,6 @@ function doGet(e) {
   }
 }
 
-function handleSubmit(data) {
-  if (!data) throw new Error('No data provided');
-  
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const templateSheet = ss.getSheetByName(data.sheetName);
-  
-  if (!templateSheet) throw new Error('Template sheet not found');
-  
-  const newSheetName = generateUniqueSheetName(ss, data);
-  const newSheet = templateSheet.copyTo(ss);
-  newSheet.setName(newSheetName);
-  
-  writeFormData(newSheet, data);
-  
-  return {
-    status: 'success',
-    message: 'Data submitted successfully',
-    sheetName: newSheetName
-  };
-}
-
 function generateUniqueSheetName(spreadsheet, data) {
   const formattedDate = formatDate(data.date);
   const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
@@ -124,6 +61,112 @@ function generateUniqueSheetName(spreadsheet, data) {
   return baseSheetName;
 }
 
+function handleSubmit(data) {
+  console.log("Starting handleSubmit with data:", data);
+  
+  if (!data) {
+    throw new Error('No data provided');
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  console.log("Opened spreadsheet");
+  
+  // Get template sheet
+  const templateSheet = ss.getSheetByName(data.sheetName);
+  if (!templateSheet) {
+    throw new Error('Template sheet not found: ' + data.sheetName);
+  }
+  
+  // Create new sheet from template
+  const newSheetName = generateUniqueSheetName(ss, data);
+  const newSheet = templateSheet.copyTo(ss);
+  newSheet.setName(newSheetName);
+  console.log("Created new sheet:", newSheetName);
+
+  try {
+    // Write facility info
+    newSheet.getRange('B3:H3').setValue(data.facility);
+    newSheet.getRange('B4:H4').setValue(data.date);
+    newSheet.getRange('B5:H5').setValue(data.technician);
+    newSheet.getRange('B6:H6').setValue(data.serialNumber);
+    console.log("Wrote facility info");
+
+    // Write Lower Limit Detection data
+    for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
+      newSheet.getRange(\`B\${12 + i}\`).setValue(data.lowerLimitDetection.conc[i]);
+      newSheet.getRange(\`C\${12 + i}\`).setValue(data.lowerLimitDetection.msc[i]);
+    }
+    console.log("Wrote Lower Limit Detection data");
+
+    // Write Precision Level 1 data
+    for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
+      newSheet.getRange(\`B\${24 + i}\`).setValue(data.precisionLevel1.conc[i]);
+      newSheet.getRange(\`C\${24 + i}\`).setValue(data.precisionLevel1.motility[i]);
+      newSheet.getRange(\`D\${24 + i}\`).setValue(data.precisionLevel1.morph[i]);
+    }
+    console.log("Wrote Precision Level 1 data");
+
+    // Write Precision Level 2 data
+    for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
+      newSheet.getRange(\`B\${36 + i}\`).setValue(data.precisionLevel2.conc[i]);
+      newSheet.getRange(\`C\${36 + i}\`).setValue(data.precisionLevel2.motility[i]);
+      newSheet.getRange(\`D\${36 + i}\`).setValue(data.precisionLevel2.morph[i]);
+    }
+    console.log("Wrote Precision Level 2 data");
+
+    // Write Accuracy data
+    for (let i = 0; i < data.accuracy.sqa.length; i++) {
+      newSheet.getRange(\`A\${48 + i}\`).setValue(data.accuracy.sqa[i]);
+      newSheet.getRange(\`B\${48 + i}\`).setValue(data.accuracy.manual[i]);
+      newSheet.getRange(\`C\${48 + i}\`).setValue(data.accuracy.sqaMotility[i]);
+      newSheet.getRange(\`D\${48 + i}\`).setValue(data.accuracy.manualMotility[i]);
+      newSheet.getRange(\`E\${48 + i}\`).setValue(data.accuracy.sqaMorph[i]);
+      newSheet.getRange(\`F\${48 + i}\`).setValue(data.accuracy.manualMorph[i]);
+    }
+    console.log("Wrote Accuracy data");
+
+    // Write Morph Grade Final data
+    const tp = parseFloat(data.accuracy.morphGradeFinal.tp) || 0;
+    const tn = parseFloat(data.accuracy.morphGradeFinal.tn) || 0;
+    const fp = parseFloat(data.accuracy.morphGradeFinal.fp) || 0;
+    const fn = parseFloat(data.accuracy.morphGradeFinal.fn) || 0;
+
+    newSheet.getRange('L48').setValue(tp);
+    newSheet.getRange('L49').setValue(tn);
+    newSheet.getRange('L50').setValue(fp);
+    newSheet.getRange('L51').setValue(fn);
+
+    // Calculate and write sensitivity and specificity
+    const sensitivity = tp + fn !== 0 ? (tp / (tp + fn)) * 100 : 0;
+    const specificity = fp + tn !== 0 ? (tn / (fp + tn)) * 100 : 0;
+
+    newSheet.getRange('L46').setValue(sensitivity);
+    newSheet.getRange('L47').setValue(specificity);
+    console.log("Wrote Morph Grade Final data");
+
+    // Write QC data
+    for (let i = 0; i < data.qc.level1.length; i++) {
+      newSheet.getRange(\`B\${71 + i}\`).setValue(data.qc.level1[i]);
+      newSheet.getRange(\`C\${71 + i}\`).setValue(data.qc.level2[i]);
+    }
+    console.log("Wrote QC data");
+
+    return {
+      status: 'success',
+      message: 'Data submitted successfully',
+      sheetName: newSheetName
+    };
+  } catch (error) {
+    console.error("Error writing data:", error);
+    try {
+      ss.deleteSheet(newSheet);
+    } catch (e) {
+      console.error("Error deleting sheet after failure:", e);
+    }
+    throw error;
+  }
+}
+
 function formatDate(dateString) {
   const date = new Date(dateString);
   const year = date.getFullYear();
@@ -131,65 +174,4 @@ function formatDate(dateString) {
   const day = String(date.getDate()).padStart(2, '0');
   return \`\${year}-\${month}-\${day}\`;
 }
-
-function writeFormData(sheet, data) {
-  // Header information
-  sheet.getRange('B3:H3').setValue(data.facility);
-  sheet.getRange('B4:H4').setValue(data.date);
-  sheet.getRange('B5:H5').setValue(data.technician);
-  sheet.getRange('B6:H6').setValue(data.serialNumber);
-  
-  // Lower Limit Detection
-  for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
-    sheet.getRange(\`B\${12 + i}\`).setValue(data.lowerLimitDetection.conc[i]);
-    sheet.getRange(\`C\${12 + i}\`).setValue(data.lowerLimitDetection.msc[i]);
-  }
-  
-  // Precision Level 1
-  for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
-    sheet.getRange(\`B\${24 + i}\`).setValue(data.precisionLevel1.conc[i]);
-    sheet.getRange(\`C\${24 + i}\`).setValue(data.precisionLevel1.motility[i]);
-    sheet.getRange(\`D\${24 + i}\`).setValue(data.precisionLevel1.morph[i]);
-  }
-  
-  // Precision Level 2
-  for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
-    sheet.getRange(\`B\${36 + i}\`).setValue(data.precisionLevel2.conc[i]);
-    sheet.getRange(\`C\${36 + i}\`).setValue(data.precisionLevel2.motility[i]);
-    sheet.getRange(\`D\${36 + i}\`).setValue(data.precisionLevel2.morph[i]);
-  }
-  
-  // Accuracy section
-  for (let i = 0; i < data.accuracy.sqa.length; i++) {
-    sheet.getRange(\`A\${48 + i}\`).setValue(data.accuracy.sqa[i]);
-    sheet.getRange(\`B\${48 + i}\`).setValue(data.accuracy.manual[i]);
-    sheet.getRange(\`C\${48 + i}\`).setValue(data.accuracy.sqaMotility[i]);
-    sheet.getRange(\`D\${48 + i}\`).setValue(data.accuracy.manualMotility[i]);
-    sheet.getRange(\`E\${48 + i}\`).setValue(data.accuracy.sqaMorph[i]);
-    sheet.getRange(\`F\${48 + i}\`).setValue(data.accuracy.manualMorph[i]);
-  }
-  
-  // QC section
-  for (let i = 0; i < data.qc.level1.length; i++) {
-    sheet.getRange(\`B\${71 + i}\`).setValue(data.qc.level1[i]);
-    sheet.getRange(\`C\${71 + i}\`).setValue(data.qc.level2[i]);
-  }
-  
-  // Calculate and write R² values
-  const concRSquared = calculateRValue(
-    data.accuracy.manual.map(String),
-    data.accuracy.sqa.map(String)
-  );
-  sheet.getRange('I54').setValue(\`R² = \${concRSquared.toFixed(4)}\`);
-  
-  const motilityRSquared = calculateRValue(
-    data.accuracy.manualMotility.map(String),
-    data.accuracy.sqaMotility.map(String)
-  );
-  sheet.getRange('I55').setValue(\`R² = \${motilityRSquared.toFixed(4)}\`);
-  
-  // Calculate sensitivity based on reference cutoff
-  const referenceCutoff = 4; // Reference cutoff value
-  const sensitivity = calculateSensitivity(data.accuracy.sqa.map(String), referenceCutoff);
-  sheet.getRange('J54').setValue(sensitivity);
-}`;
+`;
