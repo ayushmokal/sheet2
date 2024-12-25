@@ -89,14 +89,21 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
   targetRange.setFontWeights(sourceRange.getFontWeights());
   targetRange.setHorizontalAlignments(sourceRange.getHorizontalAlignments());
   targetRange.setVerticalAlignments(sourceRange.getVerticalAlignments());
-  targetRange.setBorders(
-    sourceRange.getBorder().getTop(),
-    sourceRange.getBorder().getLeft(),
-    sourceRange.getBorder().getBottom(),
-    sourceRange.getBorder().getRight(),
-    sourceRange.getBorder().getVertical(),
-    sourceRange.getBorder().getHorizontal()
-  );
+
+  // Safely copy borders if they exist
+  const sourceBorder = sourceRange.getBorder();
+  if (sourceBorder) {
+    const top = sourceBorder.getTop() || null;
+    const left = sourceBorder.getLeft() || null;
+    const bottom = sourceBorder.getBottom() || null;
+    const right = sourceBorder.getRight() || null;
+    const vertical = sourceBorder.getVertical() || null;
+    const horizontal = sourceBorder.getHorizontal() || null;
+
+    if (top || left || bottom || right || vertical || horizontal) {
+      targetRange.setBorders(top, left, bottom, right, vertical, horizontal);
+    }
+  }
   
   // Get the URL of the new spreadsheet
   const newSpreadsheetUrl = newSpreadsheet.getUrl();
