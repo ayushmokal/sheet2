@@ -20,6 +20,16 @@ interface AccuracySectionProps {
 }
 
 export function AccuracySection({ data, handleInputChange }: AccuracySectionProps) {
+  // Ensure arrays exist with default empty values
+  const safeArrays = {
+    sqa: Array.isArray(data.sqa) ? data.sqa : Array(5).fill(""),
+    manual: Array.isArray(data.manual) ? data.manual : Array(5).fill(""),
+    sqaMotility: Array.isArray(data.sqaMotility) ? data.sqaMotility : Array(5).fill(""),
+    manualMotility: Array.isArray(data.manualMotility) ? data.manualMotility : Array(5).fill(""),
+    sqaMorph: Array.isArray(data.sqaMorph) ? data.sqaMorph : Array(5).fill(""),
+    manualMorph: Array.isArray(data.manualMorph) ? data.manualMorph : Array(5).fill(""),
+  };
+
   return (
     <Card className="mt-6">
       <CardHeader>
@@ -37,7 +47,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                     <Input
                       type="number"
                       step="0.1"
-                      value={data.sqa[index]}
+                      value={safeArrays.sqa[index]}
                       onChange={(e) => handleInputChange("accuracy", "sqa", e.target.value, index)}
                     />
                   </div>
@@ -46,7 +56,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                     <Input
                       type="number"
                       step="0.1"
-                      value={data.manual[index]}
+                      value={safeArrays.manual[index]}
                       onChange={(e) => handleInputChange("accuracy", "manual", e.target.value, index)}
                     />
                   </div>
@@ -65,7 +75,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                     <Input
                       type="number"
                       step="0.1"
-                      value={data.sqaMotility[index]}
+                      value={safeArrays.sqaMotility[index]}
                       onChange={(e) => handleInputChange("accuracy", "sqaMotility", e.target.value, index)}
                     />
                   </div>
@@ -74,7 +84,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                     <Input
                       type="number"
                       step="0.1"
-                      value={data.manualMotility[index]}
+                      value={safeArrays.manualMotility[index]}
                       onChange={(e) => handleInputChange("accuracy", "manualMotility", e.target.value, index)}
                     />
                   </div>
@@ -93,7 +103,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                     <Input
                       type="number"
                       step="0.1"
-                      value={data.sqaMorph[index]}
+                      value={safeArrays.sqaMorph[index]}
                       onChange={(e) => handleInputChange("accuracy", "sqaMorph", e.target.value, index)}
                     />
                   </div>
@@ -102,7 +112,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                     <Input
                       type="number"
                       step="0.1"
-                      value={data.manualMorph[index]}
+                      value={safeArrays.manualMorph[index]}
                       onChange={(e) => handleInputChange("accuracy", "manualMorph", e.target.value, index)}
                     />
                   </div>
@@ -118,7 +128,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                 <label className="text-sm font-medium">True Positive (TP)</label>
                 <Input
                   type="number"
-                  value={data.morphGradeFinal.tp}
+                  value={data.morphGradeFinal?.tp || ""}
                   onChange={(e) => handleInputChange("accuracy", "morphGradeFinal.tp", e.target.value)}
                 />
               </div>
@@ -126,7 +136,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                 <label className="text-sm font-medium">True Negative (TN)</label>
                 <Input
                   type="number"
-                  value={data.morphGradeFinal.tn}
+                  value={data.morphGradeFinal?.tn || ""}
                   onChange={(e) => handleInputChange("accuracy", "morphGradeFinal.tn", e.target.value)}
                 />
               </div>
@@ -134,7 +144,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                 <label className="text-sm font-medium">False Positive (FP)</label>
                 <Input
                   type="number"
-                  value={data.morphGradeFinal.fp}
+                  value={data.morphGradeFinal?.fp || ""}
                   onChange={(e) => handleInputChange("accuracy", "morphGradeFinal.fp", e.target.value)}
                 />
               </div>
@@ -142,7 +152,7 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
                 <label className="text-sm font-medium">False Negative (FN)</label>
                 <Input
                   type="number"
-                  value={data.morphGradeFinal.fn}
+                  value={data.morphGradeFinal?.fn || ""}
                   onChange={(e) => handleInputChange("accuracy", "morphGradeFinal.fn", e.target.value)}
                 />
               </div>
