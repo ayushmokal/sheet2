@@ -3,8 +3,8 @@ export const SPREADSHEET_CONFIG = {
   DEFAULT_SHEET_PREFIX: 'Data_'
 };
 
-// Replace with your actual spreadsheet ID after deploying the Apps Script
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCOUWu7lNnkl5Hi0W0TdPGuSUUahchZDlyV2fFdGwJk89DYMqfZML660ZatGnNoEM3qA/exec';
+// Replace with your actual spreadsheet ID
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3hUxVrG6T4KIkXDW4r-nLcygw_4-TfIKP76v0W3dznl184X_CBJz-XSgOFI4wwVWzkw/exec';
 
 export const APPS_SCRIPT_CODE = `
 // Replace with your actual spreadsheet ID
