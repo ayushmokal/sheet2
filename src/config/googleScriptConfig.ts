@@ -1,6 +1,7 @@
 export const SPREADSHEET_CONFIG = {
   TEMPLATE_SHEET_NAME: 'Template',
-  SPREADSHEET_ID: '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU'
+  DEFAULT_SHEET_PREFIX: 'Data_'
 };
 
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSWAFpAbFVAVeIF4AzyHEypSFy6mwj4jMtfa2Wt8JSSiYOQ4IlMGUOZ6m8nw48mj-p-A/exec';
+// Replace with your actual spreadsheet ID after deploying the Apps Script
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyALESHv-oMzoW6PYVg1QCSgzne2vZtRWrjSM3lM_eu0Zn0F_qBLSQ0245PLZhuFhHbsw/exec';

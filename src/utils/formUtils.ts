@@ -26,12 +26,6 @@ export const initialFormData: FormData = {
     manualMotility: Array(5).fill(""),
     sqaMorph: Array(5).fill(""),
     manualMorph: Array(5).fill(""),
-    morphGradeFinal: {
-      tp: "",
-      tn: "",
-      fp: "",
-      fn: "",
-    },
   },
   qc: {
     level1: Array(5).fill(""),
@@ -63,14 +57,8 @@ export const getTestData = (): FormData => ({
     manual: ["18.0", "47.8", "44.9", "45.1", "141.1"],
     sqaMotility: ["4.0", "59.0", "48.0", "45.0", "45.0"],
     manualMotility: ["3.3", "57.5", "41.0", "54.0", "54.0"],
-    sqaMorph: ["1.0", "1.0", "1.0", "1.0", "1.0"],
-    manualMorph: ["1.0", "1.0", "1.0", "1.0", "1.0"],
-    morphGradeFinal: {
-      tp: "10",
-      tn: "8",
-      fp: "2",
-      fn: "1",
-    },
+    sqaMorph: ["N/A", "N/A", "N/A", "N/A", "N/A"],
+    manualMorph: ["N/A", "N/A", "N/A", "N/A", "N/A"],
   },
   qc: {
     level1: ["1.0", "1.1", "1.0", "1.2", "1.1"],

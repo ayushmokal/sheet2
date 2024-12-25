@@ -50,66 +50,40 @@ export function SQAForm() {
     setIsSubmitting(true);
     console.log("Submitting form data:", formData);
 
+    let script: HTMLScriptElement | null = null;
+    const cleanup = () => {
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      setIsSubmitting(false);
+    };
+
     try {
       const callbackName = `callback_${Date.now()}`;
       console.log("Using callback name:", callbackName);
 
       const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
-        let scriptElement: HTMLScriptElement | null = null;
-        
-        const timeoutId = setTimeout(() => {
-          reject(new Error('Request timed out after 30 seconds'));
-          cleanup();
-        }, 30000);
-
         (window as any)[callbackName] = (response: GoogleScriptResponse) => {
-          clearTimeout(timeoutId);
           console.log("Received response:", response);
           resolve(response);
-          cleanup();
+          delete (window as any)[callbackName];
         };
 
-        function cleanup() {
+        script = document.createElement('script');
+        const encodedData = encodeURIComponent(JSON.stringify({
+          ...formData,
+          sheetName: SPREADSHEET_CONFIG.TEMPLATE_SHEET_NAME
+        }));
+        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
+        console.log("Request URL:", script.src);
+        
+        script.onerror = () => {
+          console.error("Script loading failed");
+          reject(new Error('Failed to load the script'));
           delete (window as any)[callbackName];
-          if (scriptElement && scriptElement.parentNode) {
-            scriptElement.parentNode.removeChild(scriptElement);
-          }
-        }
+        };
 
-        try {
-          scriptElement = document.createElement('script');
-          scriptElement.async = true;
-          scriptElement.defer = true;
-          
-          const dataToSubmit = {
-            ...formData,
-            sheetName: SPREADSHEET_CONFIG.TEMPLATE_SHEET_NAME
-          };
-          console.log("Data being sent to Google Sheets:", dataToSubmit);
-          
-          const encodedData = encodeURIComponent(JSON.stringify(dataToSubmit));
-          const timestamp = new Date().getTime();
-          const url = new URL(APPS_SCRIPT_URL);
-          url.searchParams.append('callback', callbackName);
-          url.searchParams.append('action', 'submit');
-          url.searchParams.append('data', encodedData);
-          url.searchParams.append('_', timestamp.toString());
-          
-          scriptElement.src = url.toString();
-          console.log("Request URL:", scriptElement.src);
-          
-          scriptElement.onerror = () => {
-            clearTimeout(timeoutId);
-            reject(new Error('Failed to connect to Google Sheets. Please check your internet connection and try again.'));
-            cleanup();
-          };
-
-          document.body.appendChild(scriptElement);
-        } catch (error) {
-          clearTimeout(timeoutId);
-          reject(error);
-          cleanup();
-        }
+        document.body.appendChild(script);
       });
 
       const response = await responsePromise;
@@ -127,13 +101,11 @@ export function SQAForm() {
       console.error('Error submitting form:', error);
       toast({
         title: "Error",
-        description: error instanceof Error 
-          ? `Failed to submit data: ${error.message}. Please ensure you're connected to the internet and try again.` 
-          : "Failed to submit data. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to submit data. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      cleanup();
     }
   };
 
