@@ -50,7 +50,7 @@ function generateUniqueSheetName(spreadsheet, data) {
 
 function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEmail) {
   // Create a new spreadsheet
-  const newSpreadsheet = SpreadsheetApp.create(`SQA Data - ${sheetName}`);
+  const newSpreadsheet = SpreadsheetApp.create('SQA Data - ' + sheetName);
   const originalSheet = originalSpreadsheet.getSheetByName(sheetName);
   
   // Get the first sheet of the new spreadsheet and clear it
@@ -161,17 +161,13 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
   // Share the spreadsheet with the recipient
   newSpreadsheet.addEditor(recipientEmail);
   
-  const emailSubject = `New SQA Data Submission - ${sheetName}`;
-  const emailBody = `
-    A new SQA data submission has been recorded.
-    
-    Sheet Name: ${sheetName}
-    Date: ${new Date().toLocaleDateString()}
-    
-    You can access the spreadsheet here: ${newSpreadsheetUrl}
-    
-    This is an automated message.
-  `;
+  const emailSubject = 'New SQA Data Submission - ' + sheetName;
+  const emailBody = 
+    'A new SQA data submission has been recorded.\\n\\n' +
+    'Sheet Name: ' + sheetName + '\\n' +
+    'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
+    'You can access the spreadsheet here: ' + newSpreadsheetUrl + '\\n\\n' +
+    'This is an automated message.';
   
   GmailApp.sendEmail(
     recipientEmail,
