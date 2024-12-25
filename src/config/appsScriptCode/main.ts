@@ -1,5 +1,4 @@
 export const mainScript = `
-// Replace with your actual spreadsheet ID
 const SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
 
 function doGet(e) {

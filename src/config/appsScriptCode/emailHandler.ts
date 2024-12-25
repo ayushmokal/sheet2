@@ -98,7 +98,7 @@ function copySheetFormatting(sourceRange, targetRange) {
   
   // Copy merged ranges
   const mergedRanges = sourceRange.getMergedRanges();
-  mergedRanges.forEach(range => {
+  mergedRanges.forEach(function(range) {
     const row = range.getRow();
     const col = range.getColumn();
     const numRows = range.getNumRows();
