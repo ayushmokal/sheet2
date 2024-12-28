@@ -32,6 +32,14 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
   targetRange.setFontColors(sourceFontColors);
   targetRange.setBackgrounds(sourceBackgrounds);
   
+  // Copy column widths and row heights
+  for (let i = 1; i <= sourceValues[0].length; i++) {
+    tempSheet.setColumnWidth(i, sheet.getColumnWidth(i));
+  }
+  for (let i = 1; i <= sourceValues.length; i++) {
+    tempSheet.setRowHeight(i, sheet.getRowHeight(i));
+  }
+  
   // Recreate merged cells
   sourceMerges.forEach(mergedRange => {
     const row = mergedRange.getRow();
