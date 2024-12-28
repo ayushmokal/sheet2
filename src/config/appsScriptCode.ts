@@ -1,14 +1,14 @@
 import { mainScript } from './appsScriptCode/main';
-import { utilsScript } from './appsScriptCode/utils';
-import { emailHandlerScript } from './appsScriptCode/emailHandler';
-import { dataHandlerScript } from './appsScriptCode/dataHandler';
+import { emailHandlerScript } from './appsScriptCode/handlers/emailHandler';
+import { spreadsheetHandlerScript } from './appsScriptCode/handlers/spreadsheetHandler';
+import { dataHandlerScript } from './appsScriptCode/handlers/dataHandler';
 
 export const APPS_SCRIPT_CODE = `
 ${mainScript}
 
-${utilsScript}
-
 ${emailHandlerScript}
+
+${spreadsheetHandlerScript}
 
 ${dataHandlerScript}
 `;
