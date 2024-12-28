@@ -1,3 +1,4 @@
+export const mainScript = `
 const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
 
 function doGet(e) {
@@ -231,3 +232,5 @@ function sendEmailWithNewSpreadsheet(spreadsheet, sheetName, recipientEmail) {
   
   return true;
 }
+
+`;
