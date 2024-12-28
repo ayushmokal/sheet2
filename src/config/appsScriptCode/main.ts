@@ -1,5 +1,4 @@
-export const mainScript = `
-const SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
+const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
 
 function doGet(e) {
   const params = e.parameter;
@@ -11,6 +10,9 @@ function doGet(e) {
   
   try {
     switch (action) {
+      case 'createCopy':
+        result = createSpreadsheetCopy();
+        break;
       case 'submit':
         result = handleSubmit(data);
         break;
@@ -29,6 +31,25 @@ function doGet(e) {
     
     return ContentService.createTextOutput(callback + '(' + JSON.stringify(errorResponse) + ')')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+}
+
+function createSpreadsheetCopy() {
+  try {
+    const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
+    const newFile = templateFile.makeCopy('SQA Data Collection Form (Copy)');
+    const newSpreadsheet = SpreadsheetApp.openById(newFile.getId());
+    
+    // Make the spreadsheet accessible to anyone with the link
+    newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+    
+    return {
+      status: 'success',
+      spreadsheetId: newFile.getId(),
+      spreadsheetUrl: newSpreadsheet.getUrl()
+    };
+  } catch (error) {
+    throw new Error('Failed to create spreadsheet copy: ' + error.message);
   }
 }
 
@@ -210,4 +231,3 @@ function sendEmailWithNewSpreadsheet(spreadsheet, sheetName, recipientEmail) {
   
   return true;
 }
-`;

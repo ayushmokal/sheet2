@@ -10,11 +10,13 @@ import { MorphGradeFinalSection } from "./MorphGradeFinalSection";
 import { FormActions } from "./FormActions";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
-import { APPS_SCRIPT_URL, SPREADSHEET_CONFIG } from "@/config/constants";
+import { APPS_SCRIPT_URL } from "@/config/constants";
 
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [spreadsheetId, setSpreadsheetId] = useState<string | null>(null);
+  const [spreadsheetUrl, setSpreadsheetUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleInputChange = (
@@ -58,9 +60,81 @@ export function SQAForm() {
     });
   };
 
+  const createSpreadsheetCopy = async () => {
+    if (spreadsheetId) {
+      window.open(spreadsheetUrl, '_blank');
+      return;
+    }
+
+    let script: HTMLScriptElement | null = null;
+    const cleanup = () => {
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
+
+    try {
+      const callbackName = `callback_${Date.now()}`;
+      console.log("Using callback name:", callbackName);
+
+      const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
+        (window as any)[callbackName] = (response: GoogleScriptResponse) => {
+          console.log("Received response:", response);
+          resolve(response);
+          delete (window as any)[callbackName];
+        };
+
+        script = document.createElement('script');
+        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=createCopy`;
+        console.log("Request URL:", script.src);
+        
+        script.onerror = () => {
+          console.error("Script loading failed");
+          reject(new Error('Failed to load the script'));
+          delete (window as any)[callbackName];
+        };
+
+        document.body.appendChild(script);
+      });
+
+      const response = await responsePromise;
+      console.log("Processing response:", response);
+
+      if (response.status === 'success' && response.spreadsheetId && response.spreadsheetUrl) {
+        setSpreadsheetId(response.spreadsheetId);
+        setSpreadsheetUrl(response.spreadsheetUrl);
+        window.open(response.spreadsheetUrl, '_blank');
+        toast({
+          title: "Success!",
+          description: "A new spreadsheet has been created. You can now enter and submit your data.",
+        });
+      } else {
+        throw new Error(response.message || 'Failed to create spreadsheet');
+      }
+    } catch (error) {
+      console.error('Error creating spreadsheet:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create spreadsheet. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      cleanup();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
+    
+    if (!spreadsheetId) {
+      toast({
+        title: "Error",
+        description: "Please create a new spreadsheet first before submitting data.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsSubmitting(true);
     console.log("Submitting form data:", formData);
@@ -87,7 +161,8 @@ export function SQAForm() {
         script = document.createElement('script');
         const encodedData = encodeURIComponent(JSON.stringify({
           ...formData,
-          sheetName: SPREADSHEET_CONFIG.TEMPLATE_SHEET_NAME
+          spreadsheetId,
+          sheetName: "Template"
         }));
         script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
         console.log("Request URL:", script.src);
@@ -134,6 +209,8 @@ export function SQAForm() {
           <FormActions 
             onLoadTestData={loadTestData}
             isSubmitting={isSubmitting}
+            onCreateSpreadsheet={createSpreadsheetCopy}
+            hasSpreadsheet={!!spreadsheetId}
           />
           <FormHeader formData={formData} handleInputChange={handleInputChange} />
           <LowerLimitDetection 
