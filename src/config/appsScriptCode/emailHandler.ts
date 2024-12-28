@@ -15,6 +15,7 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
   const sourceFormats = sourceRange.getNumberFormats();
   const sourceFontColors = sourceRange.getFontColors();
   const sourceBackgrounds = sourceRange.getBackgrounds();
+  const sourceMerges = sourceRange.getMergedRanges();
   
   // Set dimensions of temp sheet
   if (tempSheet.getMaxRows() < sourceValues.length) {
@@ -31,8 +32,21 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
   targetRange.setFontColors(sourceFontColors);
   targetRange.setBackgrounds(sourceBackgrounds);
   
-  // Generate PDF of just this sheet
+  // Recreate merged cells
+  sourceMerges.forEach(mergedRange => {
+    const row = mergedRange.getRow();
+    const col = mergedRange.getColumn();
+    const numRows = mergedRange.getNumRows();
+    const numCols = mergedRange.getNumColumns();
+    tempSheet.getRange(row, col, numRows, numCols).merge();
+  });
+  
+  // Generate PDF of the sheet
   const pdfBlob = tempSpreadsheet.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
+  
+  // Generate XLSX of the sheet
+  const xlsxBlob = tempSpreadsheet.getAs('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    .setName('SQA Data - ' + sheetName + '.xlsx');
   
   // Delete the temporary spreadsheet
   DriveApp.getFileById(tempSpreadsheet.getId()).setTrashed(true);
@@ -42,7 +56,8 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
                    'Sheet Name: ' + sheetName + '\\n' +
                    'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
                    'You can access the spreadsheet here: ' + ss.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
-                   'This is an automated message.';
+                   'This is an automated message.\\n\\n' +
+                   'Attachments include both PDF and XLSX formats of the submitted data.';
   
   GmailApp.sendEmail(
     recipientEmail,
@@ -50,7 +65,7 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
     emailBody,
     {
       name: 'SQA Data System',
-      attachments: [pdfBlob]
+      attachments: [pdfBlob, xlsxBlob]
     }
   );
   
