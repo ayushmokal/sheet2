@@ -1,5 +1,1 @@
-export const SPREADSHEET_CONFIG = {
-  TEMPLATE_SHEET_NAME: 'Template',
-};
-
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvdnMtWsdGUUheBrpaf7OHVbjz-m-JaYmLab4Xhm2RR3-xSjPp0nKhAnh_0widAKiXGw/exec';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZyncXLIh9CGZLs-yEr5ds8n1hT1uOBG2RbhIf492JkgMxEY5ITcHwboNTmSEIvKlerw/exec';
