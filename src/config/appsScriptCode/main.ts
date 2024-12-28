@@ -88,6 +88,7 @@ function writeFacilityInfo(sheet, data) {
   sheet.getRange('B4:H4').setValue(data.date);
   sheet.getRange('B5:H5').setValue(data.technician);
   sheet.getRange('B6:H6').setValue(data.serialNumber);
+  console.log("Wrote facility info");
 }
 
 function writeLowerLimitDetection(sheet, data) {
@@ -95,22 +96,25 @@ function writeLowerLimitDetection(sheet, data) {
     sheet.getRange('B' + (12 + i)).setValue(data.lowerLimitDetection.conc[i]);
     sheet.getRange('C' + (12 + i)).setValue(data.lowerLimitDetection.msc[i]);
   }
+  console.log("Wrote Lower Limit Detection data");
 }
 
 function writePrecisionData(sheet, data) {
-  // Write Precision Level 1 data
+  // Level 1
   for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
     sheet.getRange('B' + (24 + i)).setValue(data.precisionLevel1.conc[i]);
     sheet.getRange('C' + (24 + i)).setValue(data.precisionLevel1.motility[i]);
     sheet.getRange('D' + (24 + i)).setValue(data.precisionLevel1.morph[i]);
   }
-  
-  // Write Precision Level 2 data
+  console.log("Wrote Precision Level 1 data");
+
+  // Level 2
   for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
     sheet.getRange('B' + (36 + i)).setValue(data.precisionLevel2.conc[i]);
     sheet.getRange('C' + (36 + i)).setValue(data.precisionLevel2.motility[i]);
     sheet.getRange('D' + (36 + i)).setValue(data.precisionLevel2.morph[i]);
   }
+  console.log("Wrote Precision Level 2 data");
 }
 
 function writeAccuracyData(sheet, data) {
@@ -122,14 +126,14 @@ function writeAccuracyData(sheet, data) {
     sheet.getRange('E' + (48 + i)).setValue(data.accuracy.sqaMorph[i]);
     sheet.getRange('F' + (48 + i)).setValue(data.accuracy.manualMorph[i]);
   }
+  console.log("Wrote Accuracy data");
 }
 
 function writeMorphGradeFinal(sheet, data) {
-  const morphData = data.accuracy.morphGradeFinal;
-  const tp = parseFloat(morphData.tp) || 0;
-  const tn = parseFloat(morphData.tn) || 0;
-  const fp = parseFloat(morphData.fp) || 0;
-  const fn = parseFloat(morphData.fn) || 0;
+  const tp = parseFloat(data.accuracy.morphGradeFinal.tp) || 0;
+  const tn = parseFloat(data.accuracy.morphGradeFinal.tn) || 0;
+  const fp = parseFloat(data.accuracy.morphGradeFinal.fp) || 0;
+  const fn = parseFloat(data.accuracy.morphGradeFinal.fn) || 0;
 
   sheet.getRange('L48').setValue(tp);
   sheet.getRange('L49').setValue(tn);
@@ -141,6 +145,7 @@ function writeMorphGradeFinal(sheet, data) {
 
   sheet.getRange('L46').setValue(sensitivity);
   sheet.getRange('L47').setValue(specificity);
+  console.log("Wrote Morph Grade Final data");
 }
 
 function writeQCData(sheet, data) {
@@ -148,5 +153,29 @@ function writeQCData(sheet, data) {
     sheet.getRange('B' + (71 + i)).setValue(data.qc.level1[i]);
     sheet.getRange('C' + (71 + i)).setValue(data.qc.level2[i]);
   }
+  console.log("Wrote QC data");
+}
+
+function generateUniqueSheetName(spreadsheet, data) {
+  const formattedDate = formatDate(data.date);
+  const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
+  const cleanSerialNumber = data.serialNumber.trim();
+  
+  const baseSheetName = formattedDate + '-' + cleanSerialNumber + '-' + sanitizedFacility;
+  
+  const existingSheets = spreadsheet.getSheets().map(sheet => sheet.getName());
+  if (existingSheets.includes(baseSheetName)) {
+    throw new Error('A submission with this date, serial number, and facility already exists');
+  }
+  
+  return baseSheetName;
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return year + '-' + month + '-' + day;
 }
 `;
