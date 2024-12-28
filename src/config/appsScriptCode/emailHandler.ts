@@ -12,7 +12,7 @@ function sendEmailWithSheet(spreadsheet, sheet, recipientEmail) {
       'A new SQA data submission has been recorded.\\n\\n' +
       'Sheet Name: ' + sheet.getName() + '\\n' +
       'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
-      'You can access the spreadsheet here: ' + spreadsheet.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
+      'The submitted data sheet is attached to this email in both PDF and Excel formats.\\n\\n' +
       'This is an automated message.';
     
     // Send email with both PDF and Excel attachments
