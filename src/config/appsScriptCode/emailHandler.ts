@@ -1,76 +1,48 @@
 export const emailHandlerScript = `
 function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
-  console.log("Starting email process for sheet:", sheetName);
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    throw new Error('Sheet not found: ' + sheetName);
+  }
   
-  // Create a temporary spreadsheet for this specific sheet
+  // Create a temporary spreadsheet with just this sheet
   const tempSpreadsheet = SpreadsheetApp.create('Temp - ' + sheetName);
   const tempSheet = tempSpreadsheet.getSheets()[0];
-  const sheet = ss.getSheetByName(sheetName);
   
-  // Get source data and formatting
+  // Copy the data and formatting from the original sheet
   const sourceRange = sheet.getDataRange();
   const sourceValues = sourceRange.getValues();
   const sourceFormats = sourceRange.getNumberFormats();
   const sourceFontColors = sourceRange.getFontColors();
   const sourceBackgrounds = sourceRange.getBackgrounds();
-  const sourceMerges = sourceRange.getMergedRanges();
   
-  // Prepare target sheet
-  const numRows = sourceValues.length;
-  const numCols = sourceValues[0].length;
-  
-  // Ensure target sheet has enough rows and columns
-  if (tempSheet.getMaxRows() < numRows) {
-    tempSheet.insertRows(1, numRows - tempSheet.getMaxRows());
+  // Set dimensions of temp sheet
+  if (tempSheet.getMaxRows() < sourceValues.length) {
+    tempSheet.insertRows(1, sourceValues.length - tempSheet.getMaxRows());
   }
-  if (tempSheet.getMaxColumns() < numCols) {
-    tempSheet.insertColumns(1, numCols - tempSheet.getMaxColumns());
+  if (tempSheet.getMaxColumns() < sourceValues[0].length) {
+    tempSheet.insertColumns(1, sourceValues[0].length - tempSheet.getMaxColumns());
   }
   
-  // Copy data and formatting
-  const targetRange = tempSheet.getRange(1, 1, numRows, numCols);
+  // Copy content and formatting
+  const targetRange = tempSheet.getRange(1, 1, sourceValues.length, sourceValues[0].length);
   targetRange.setValues(sourceValues);
   targetRange.setNumberFormats(sourceFormats);
   targetRange.setFontColors(sourceFontColors);
   targetRange.setBackgrounds(sourceBackgrounds);
   
-  // Copy column widths and row heights
-  for (let i = 1; i <= sourceValues[0].length; i++) {
-    tempSheet.setColumnWidth(i, sheet.getColumnWidth(i));
-  }
-  for (let i = 1; i <= sourceValues.length; i++) {
-    tempSheet.setRowHeight(i, sheet.getRowHeight(i));
-  }
+  // Generate PDF of just this sheet
+  const pdfBlob = tempSpreadsheet.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
   
-  // Recreate merged cells
-  sourceMerges.forEach(mergedRange => {
-    const row = mergedRange.getRow();
-    const col = mergedRange.getColumn();
-    const numRows = mergedRange.getNumRows();
-    const numCols = mergedRange.getNumColumns();
-    tempSheet.getRange(row, col, numRows, numCols).merge();
-  });
-
-  // Get the file ID of the temporary spreadsheet
-  const tempFileId = tempSpreadsheet.getId();
-  const tempFile = DriveApp.getFileById(tempFileId);
+  // Delete the temporary spreadsheet
+  DriveApp.getFileById(tempSpreadsheet.getId()).setTrashed(true);
   
-  // Create PDF version
-  const pdfBlob = tempFile.getAs(MimeType.PDF);
-  pdfBlob.setName('SQA Data - ' + sheetName + '.pdf');
-  
-  // Create Excel version
-  const xlsxBlob = tempFile.getAs(MimeType.MICROSOFT_EXCEL);
-  xlsxBlob.setName('SQA Data - ' + sheetName + '.xlsx');
-  
-  // Send email with both attachments
   const emailSubject = 'New SQA Data Submission - ' + sheetName;
-  const emailBody = 
-    'A new SQA data submission has been recorded.\\n\\n' +
-    'Sheet Name: ' + sheetName + '\\n' +
-    'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
-    'Please find attached both PDF and Excel versions of the submitted data.\\n\\n' +
-    'This is an automated message.';
+  const emailBody = 'A new SQA data submission has been recorded.\\n\\n' +
+                   'Sheet Name: ' + sheetName + '\\n' +
+                   'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
+                   'You can access the spreadsheet here: ' + ss.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
+                   'This is an automated message.';
   
   GmailApp.sendEmail(
     recipientEmail,
@@ -78,14 +50,10 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
     emailBody,
     {
       name: 'SQA Data System',
-      attachments: [pdfBlob, xlsxBlob]
+      attachments: [pdfBlob]
     }
   );
   
-  // Clean up - delete temporary spreadsheet
-  tempFile.setTrashed(true);
-  
-  console.log("Email sent successfully to:", recipientEmail);
   return true;
 }
 `;
