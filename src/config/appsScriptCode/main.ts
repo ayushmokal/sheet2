@@ -18,6 +18,13 @@ function doGet(e) {
         }
         result = handleSubmit(data);
         break;
+      case 'sendEmail':
+        if (!data || !data.spreadsheetId || !data.emailTo) {
+          throw new Error('Missing required data for sending email');
+        }
+        const ss = SpreadsheetApp.openById(data.spreadsheetId);
+        result = sendEmailWithNewSpreadsheet(ss, data.emailTo);
+        break;
       default:
         throw new Error('Invalid action');
     }
@@ -62,33 +69,32 @@ function createSpreadsheetCopy() {
 function handleSubmit(data) {
   console.log("Starting handleSubmit with data:", data);
   
-  try {
-    const ss = SpreadsheetApp.openById(data.spreadsheetId);
-    console.log("Opened spreadsheet");
-    
-    // Get template sheet
-    const templateSheet = ss.getSheetByName(data.sheetName);
-    if (!templateSheet) {
-      throw new Error('Template sheet not found: ' + data.sheetName);
-    }
-    
-    // Create new sheet from template
-    const newSheetName = generateUniqueSheetName(ss, data);
-    const newSheet = templateSheet.copyTo(ss);
-    newSheet.setName(newSheetName);
-    console.log("Created new sheet:", newSheetName);
+  if (!data) {
+    throw new Error('No data provided');
+  }
 
+  const ss = SpreadsheetApp.openById(data.spreadsheetId);
+  console.log("Opened spreadsheet");
+  
+  // Get template sheet
+  const templateSheet = ss.getSheetByName(data.sheetName);
+  if (!templateSheet) {
+    throw new Error('Template sheet not found: ' + data.sheetName);
+  }
+  
+  // Create new sheet from template
+  const newSheetName = generateUniqueSheetName(ss, data);
+  const newSheet = templateSheet.copyTo(ss);
+  newSheet.setName(newSheetName);
+  console.log("Created new sheet:", newSheetName);
+
+  try {
     writeFacilityInfo(newSheet, data);
     writeLowerLimitDetection(newSheet, data);
     writePrecisionData(newSheet, data);
     writeAccuracyData(newSheet, data);
     writeMorphGradeFinal(newSheet, data);
     writeQCData(newSheet, data);
-
-    // Send email with new spreadsheet if recipient is provided
-    if (data.emailTo) {
-      sendEmailWithNewSpreadsheet(ss, newSheetName, data.emailTo);
-    }
 
     return {
       status: 'success',
@@ -97,81 +103,47 @@ function handleSubmit(data) {
     };
   } catch (error) {
     console.error("Error in handleSubmit:", error);
-    throw new Error('Failed to submit data: ' + error.message);
+    try {
+      ss.deleteSheet(newSheet);
+    } catch (e) {
+      console.error("Error deleting sheet after failure:", e);
+    }
+    throw error;
   }
 }
 
-function writeFacilityInfo(sheet, data) {
-  sheet.getRange('B3:H3').setValue(data.facility);
-  sheet.getRange('B4:H4').setValue(data.date);
-  sheet.getRange('B5:H5').setValue(data.technician);
-  sheet.getRange('B6:H6').setValue(data.serialNumber);
-  console.log("Wrote facility info");
-}
-
-function writeLowerLimitDetection(sheet, data) {
-  for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
-    sheet.getRange('B' + (12 + i)).setValue(data.lowerLimitDetection.conc[i]);
-    sheet.getRange('C' + (12 + i)).setValue(data.lowerLimitDetection.msc[i]);
+function sendEmailWithNewSpreadsheet(spreadsheet, recipientEmail) {
+  try {
+    // Generate PDF of the spreadsheet
+    const pdfBlob = spreadsheet.getAs('application/pdf').setName('SQA Data.pdf');
+    
+    const emailSubject = 'SQA Data Spreadsheet';
+    const emailBody = 'Please find attached the SQA data spreadsheet and PDF.\n\n' +
+                     'You can access the spreadsheet here: ' + spreadsheet.getUrl() + '\n\n' +
+                     'This is an automated message.';
+    
+    // Create a temporary copy of the spreadsheet as XLSX
+    const xlsxBlob = spreadsheet.getAs('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                               .setName('SQA Data.xlsx');
+    
+    GmailApp.sendEmail(
+      recipientEmail,
+      emailSubject,
+      emailBody,
+      {
+        attachments: [pdfBlob, xlsxBlob],
+        name: 'SQA Data System'
+      }
+    );
+    
+    return {
+      status: 'success',
+      message: 'Email sent successfully'
+    };
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Failed to send email: ' + error.message);
   }
-  console.log("Wrote Lower Limit Detection data");
-}
-
-function writePrecisionData(sheet, data) {
-  // Level 1
-  for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
-    sheet.getRange('B' + (24 + i)).setValue(data.precisionLevel1.conc[i]);
-    sheet.getRange('C' + (24 + i)).setValue(data.precisionLevel1.motility[i]);
-    sheet.getRange('D' + (24 + i)).setValue(data.precisionLevel1.morph[i]);
-  }
-  console.log("Wrote Precision Level 1 data");
-
-  // Level 2
-  for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
-    sheet.getRange('B' + (36 + i)).setValue(data.precisionLevel2.conc[i]);
-    sheet.getRange('C' + (36 + i)).setValue(data.precisionLevel2.motility[i]);
-    sheet.getRange('D' + (36 + i)).setValue(data.precisionLevel2.morph[i]);
-  }
-  console.log("Wrote Precision Level 2 data");
-}
-
-function writeAccuracyData(sheet, data) {
-  for (let i = 0; i < data.accuracy.sqa.length; i++) {
-    sheet.getRange('A' + (48 + i)).setValue(data.accuracy.sqa[i]);
-    sheet.getRange('B' + (48 + i)).setValue(data.accuracy.manual[i]);
-    sheet.getRange('C' + (48 + i)).setValue(data.accuracy.sqaMotility[i]);
-    sheet.getRange('D' + (48 + i)).setValue(data.accuracy.manualMotility[i]);
-    sheet.getRange('E' + (48 + i)).setValue(data.accuracy.sqaMorph[i]);
-    sheet.getRange('F' + (48 + i)).setValue(data.accuracy.manualMorph[i]);
-  }
-  console.log("Wrote Accuracy data");
-}
-
-function writeMorphGradeFinal(sheet, data) {
-  const tp = parseFloat(data.accuracy.morphGradeFinal.tp) || 0;
-  const tn = parseFloat(data.accuracy.morphGradeFinal.tn) || 0;
-  const fp = parseFloat(data.accuracy.morphGradeFinal.fp) || 0;
-  const fn = parseFloat(data.accuracy.morphGradeFinal.fn) || 0;
-
-  sheet.getRange('L48').setValue(tp);
-  sheet.getRange('L49').setValue(tn);
-  sheet.getRange('L50').setValue(fp);
-  sheet.getRange('L51').setValue(fn);
-
-  const sensitivity = tp + fn !== 0 ? (tp / (tp + fn)) * 100 : 0;
-  const specificity = fp + tn !== 0 ? (tn / (fp + tn)) * 100 : 0;
-
-  sheet.getRange('L46').setValue(sensitivity);
-  sheet.getRange('L47').setValue(specificity);
-  console.log("Wrote Morph Grade Final data");
-}
-
-function writeQCData(sheet, data) {
-  for (let i = 0; i < data.qc.level1.length; i++) {
-    sheet.getRange('B' + (71 + i)).setValue(data.qc.level1[i]);
-    sheet.getRange('C' + (71 + i)).setValue(data.qc.level2[i]);
-  }
-  console.log("Wrote QC data");
 }
 
 function generateUniqueSheetName(spreadsheet, data) {
