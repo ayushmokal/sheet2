@@ -1,3 +1,4 @@
+export const mainScript = `
 function doGet(e) {
   const params = e.parameter;
   const callback = params.callback;
@@ -79,8 +80,8 @@ function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
     const spreadsheetUrl = spreadsheet.getUrl();
     
     const emailSubject = 'SQA Data Submission';
-    const emailBody = 'Please find attached the SQA data submission PDF.\n\n' +
-                     'You can access the spreadsheet directly here: ' + spreadsheetUrl + '\n\n' +
+    const emailBody = 'Please find attached the SQA data submission PDF.\\n\\n' +
+                     'You can access the spreadsheet directly here: ' + spreadsheetUrl + '\\n\\n' +
                      'This is an automated message.';
     
     GmailApp.sendEmail(
@@ -236,3 +237,4 @@ function writeQCData(sheet, data) {
   }
   console.log("Wrote QC data");
 }
+`;
