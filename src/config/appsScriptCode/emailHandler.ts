@@ -49,11 +49,12 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
     tempSheet.getRange(row, col, numRows, numCols).merge();
   });
   
-  // Create PDF and XLSX blobs
-  const pdfBlob = tempSheet.getAs('application/pdf')
+  // Create PDF blob
+  const pdfBlob = DriveApp.getFileById(tempSpreadsheet.getId()).getAs(MimeType.PDF)
     .setName('SQA Data - ' + sheetName + '.pdf');
   
-  const xlsxBlob = tempSpreadsheet.getAs('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  // Create XLSX blob
+  const xlsxBlob = DriveApp.getFileById(tempSpreadsheet.getId()).getAs(MimeType.MICROSOFT_EXCEL_XLSX)
     .setName('SQA Data - ' + sheetName + '.xlsx');
   
   // Send email with both attachments
