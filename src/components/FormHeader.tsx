@@ -55,7 +55,7 @@ export function FormHeader({ formData, handleInputChange, hasSubmittedData }: Fo
             />
           </div>
           {hasSubmittedData && (
-            <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-medium">Email Results To</label>
               <Input
                 type="email"
