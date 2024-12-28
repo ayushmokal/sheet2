@@ -4,4 +4,4 @@ export const SPREADSHEET_CONFIG = {
 };
 
 // Replace with your actual spreadsheet ID after deploying the Apps Script
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCOUWu7lNnkl5Hi0W0TdPGuSUUahchZDlyV2fFdGwJk89DYMqfZML660ZatGnNoEM3qA/exec';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbykIVDfGMzKhp0Vh_8CRmyDOp8lV8eJ3Py_BgT8leO7bUmfeN_OI2DB2UZ_IuRSR2h-ng/exec';
