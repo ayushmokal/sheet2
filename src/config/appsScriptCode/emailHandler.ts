@@ -41,12 +41,14 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
     tempSheet.getRange(row, col, numRows, numCols).merge();
   });
   
-  // Generate PDF of the sheet
-  const pdfBlob = tempSpreadsheet.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
+  // Get the PDF and XLSX files directly from Drive
+  const tempFile = DriveApp.getFileById(tempSpreadsheet.getId());
   
-  // Generate XLSX of the sheet
-  const xlsxBlob = tempSpreadsheet.getAs('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    .setName('SQA Data - ' + sheetName + '.xlsx');
+  // Create PDF blob
+  const pdfBlob = tempSheet.getAs(MimeType.PDF).setName('SQA Data - ' + sheetName + '.pdf');
+  
+  // Create XLSX blob
+  const xlsxBlob = tempFile.getAs(MimeType.MICROSOFT_EXCEL_LEGACY).setName('SQA Data - ' + sheetName + '.xlsx');
   
   // Delete the temporary spreadsheet
   DriveApp.getFileById(tempSpreadsheet.getId()).setTrashed(true);
