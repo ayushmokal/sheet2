@@ -3,4 +3,5 @@ export const SPREADSHEET_CONFIG = {
   DEFAULT_SHEET_PREFIX: 'Data_'
 };
 
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyG362ofIYRsB4szZv8EDVI002cuYPq_qhXBEH4qA5l1xrUl_YaIQgCEWfnahI2GHtRmw/exec';
+// Replace with your actual spreadsheet ID after deploying the Apps Script
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCOUWu7lNnkl5Hi0W0TdPGuSUUahchZDlyV2fFdGwJk89DYMqfZML660ZatGnNoEM3qA/exec';

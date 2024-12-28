@@ -1,63 +1,59 @@
 export const emailHandlerScript = `
-function sendEmailWithSheet(spreadsheet, sheet, recipientEmail) {
-  try {
-    // Get the spreadsheet ID and sheet ID
-    const ssId = spreadsheet.getId();
-    const sheetId = sheet.getSheetId();
-    
-    // Create PDF URL
-    const pdfUrl = 'https://docs.google.com/spreadsheets/d/' + ssId + '/export?' +
-                  'exportFormat=pdf&' +
-                  'format=pdf&' +
-                  'size=letter&' +
-                  'portrait=true&' +
-                  'fitw=true&' +
-                  'sheetnames=false&' +
-                  'printtitle=false&' +
-                  'pagenumbers=false&' +
-                  'gridlines=false&' +
-                  'fzr=false&' +
-                  'gid=' + sheetId;
-
-    // Fetch PDF content
-    const token = ScriptApp.getOAuthToken();
-    const response = UrlFetchApp.fetch(pdfUrl, {
-      headers: {
-        'Authorization': 'Bearer ' + token
-      }
-    });
-    
-    // Create PDF blob
-    const pdfBlob = response.getBlob().setName(sheet.getName() + '.pdf');
-    
-    // Create Excel blob
-    const xlsxBlob = sheet.getAs(MimeType.MICROSOFT_EXCEL).setName(sheet.getName() + '.xlsx');
-    
-    // Send email with both attachments
-    const emailSubject = 'New SQA Data Submission - ' + sheet.getName();
-    const emailBody = 
-      'A new SQA data submission has been recorded.\\n\\n' +
-      'Sheet Name: ' + sheet.getName() + '\\n' +
-      'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
-      'You can access the spreadsheet here: ' + spreadsheet.getUrl() + '#gid=' + sheetId + '\\n\\n' +
-      'The submitted data sheet is attached in both PDF and Excel formats.\\n\\n' +
-      'This is an automated message.';
-    
-    GmailApp.sendEmail(
-      recipientEmail,
-      emailSubject,
-      emailBody,
-      {
-        name: 'SQA Data System',
-        attachments: [pdfBlob, xlsxBlob]
-      }
-    );
-    
-    console.log("Email sent successfully to:", recipientEmail);
-    return true;
-  } catch (error) {
-    console.error("Error sending email:", error);
-    throw error;
+function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
+  const sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    throw new Error('Sheet not found: ' + sheetName);
   }
+  
+  // Create a temporary spreadsheet with just this sheet
+  const tempSpreadsheet = SpreadsheetApp.create('Temp - ' + sheetName);
+  const tempSheet = tempSpreadsheet.getSheets()[0];
+  
+  // Copy the data and formatting from the original sheet
+  const sourceRange = sheet.getDataRange();
+  const sourceValues = sourceRange.getValues();
+  const sourceFormats = sourceRange.getNumberFormats();
+  const sourceFontColors = sourceRange.getFontColors();
+  const sourceBackgrounds = sourceRange.getBackgrounds();
+  
+  // Set dimensions of temp sheet
+  if (tempSheet.getMaxRows() < sourceValues.length) {
+    tempSheet.insertRows(1, sourceValues.length - tempSheet.getMaxRows());
+  }
+  if (tempSheet.getMaxColumns() < sourceValues[0].length) {
+    tempSheet.insertColumns(1, sourceValues[0].length - tempSheet.getMaxColumns());
+  }
+  
+  // Copy content and formatting
+  const targetRange = tempSheet.getRange(1, 1, sourceValues.length, sourceValues[0].length);
+  targetRange.setValues(sourceValues);
+  targetRange.setNumberFormats(sourceFormats);
+  targetRange.setFontColors(sourceFontColors);
+  targetRange.setBackgrounds(sourceBackgrounds);
+  
+  // Generate PDF of just this sheet
+  const pdfBlob = tempSpreadsheet.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
+  
+  // Delete the temporary spreadsheet
+  DriveApp.getFileById(tempSpreadsheet.getId()).setTrashed(true);
+  
+  const emailSubject = 'New SQA Data Submission - ' + sheetName;
+  const emailBody = 'A new SQA data submission has been recorded.\\n\\n' +
+                   'Sheet Name: ' + sheetName + '\\n' +
+                   'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
+                   'You can access the spreadsheet here: ' + ss.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
+                   'This is an automated message.';
+  
+  GmailApp.sendEmail(
+    recipientEmail,
+    emailSubject,
+    emailBody,
+    {
+      name: 'SQA Data System',
+      attachments: [pdfBlob]
+    }
+  );
+  
+  return true;
 }
 `;
