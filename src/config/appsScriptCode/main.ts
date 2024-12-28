@@ -23,7 +23,7 @@ function doGet(e) {
           throw new Error('Missing required data for sending email');
         }
         const ss = SpreadsheetApp.openById(data.spreadsheetId);
-        const emailResult = sendEmailWithNewSpreadsheet(ss, 'Template', data.emailTo);
+        const emailResult = sendEmailWithSpreadsheet(ss, data.emailTo);
         result = {
           status: emailResult ? 'success' : 'error',
           message: emailResult ? 'Email sent successfully' : 'Failed to send email'
@@ -67,6 +67,38 @@ function createSpreadsheetCopy() {
   } catch (error) {
     console.error('Error in createSpreadsheetCopy:', error);
     throw new Error('Failed to create spreadsheet copy: ' + error.message);
+  }
+}
+
+function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
+  try {
+    // Generate PDF of the spreadsheet
+    const pdfBlob = spreadsheet.getAs('application/pdf')
+      .setName('SQA Data.pdf');
+    
+    // Get the spreadsheet as XLSX
+    const xlsxBlob = spreadsheet.getAs('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      .setName('SQA Data.xlsx');
+    
+    const emailSubject = 'SQA Data Submission';
+    const emailBody = 'Please find attached the SQA data submission spreadsheet and PDF.\n\n' +
+                     'Spreadsheet URL: ' + spreadsheet.getUrl() + '\n\n' +
+                     'This is an automated message.';
+    
+    GmailApp.sendEmail(
+      recipientEmail,
+      emailSubject,
+      emailBody,
+      {
+        attachments: [pdfBlob, xlsxBlob],
+        name: 'SQA Data System'
+      }
+    );
+    
+    return true;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Failed to send email: ' + error.message);
   }
 }
 
@@ -116,45 +148,6 @@ function handleSubmit(data) {
   }
 }
 
-function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
-  try {
-    const sheet = ss.getSheetByName(sheetName);
-    if (!sheet) {
-      throw new Error('Sheet not found: ' + sheetName);
-    }
-    
-    // Generate PDF of the sheet
-    const pdfBlob = ss.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
-    
-    // Create a copy of the spreadsheet as XLSX
-    const spreadsheetBlob = ss.getAs('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    spreadsheetBlob.setName('SQA Data - ' + sheetName + '.xlsx');
-    
-    const emailSubject = 'New SQA Data Submission - ' + sheetName;
-    const emailBody = 'A new SQA data submission has been recorded.\\n\\n' +
-                     'Sheet Name: ' + sheetName + '\\n' +
-                     'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
-                     'You can access the spreadsheet here: ' + ss.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
-                     'The spreadsheet and PDF version are attached to this email.\\n\\n' +
-                     'This is an automated message.';
-    
-    GmailApp.sendEmail(
-      recipientEmail,
-      emailSubject,
-      emailBody,
-      {
-        name: 'SQA Data System',
-        attachments: [pdfBlob, spreadsheetBlob]
-      }
-    );
-    
-    return true;
-  } catch (error) {
-    console.error('Error sending email:', error);
-    return false;
-  }
-}
-
 function generateUniqueSheetName(ss, data) {
   const date = new Date(data.date);
   const formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd");
@@ -173,7 +166,6 @@ function generateUniqueSheetName(ss, data) {
   return sheetName;
 }
 
-// Utility functions
 function writeFacilityInfo(sheet, data) {
   sheet.getRange('B3:H3').setValue(data.facility);
   sheet.getRange('B4:H4').setValue(data.date);
