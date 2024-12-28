@@ -61,22 +61,22 @@ function handleSubmit(data) {
     throw new Error('No data or spreadsheetId provided');
   }
 
-  const ss = SpreadsheetApp.openById(data.spreadsheetId);
-  console.log("Opened spreadsheet");
-  
-  // Get template sheet
-  const templateSheet = ss.getSheetByName(data.sheetName);
-  if (!templateSheet) {
-    throw new Error('Template sheet not found: ' + data.sheetName);
-  }
-  
-  // Create new sheet from template
-  const newSheetName = generateUniqueSheetName(ss, data);
-  const newSheet = templateSheet.copyTo(ss);
-  newSheet.setName(newSheetName);
-  console.log("Created new sheet:", newSheetName);
-
   try {
+    const ss = SpreadsheetApp.openById(data.spreadsheetId);
+    console.log("Opened spreadsheet");
+    
+    // Get template sheet
+    const templateSheet = ss.getSheetByName(data.sheetName);
+    if (!templateSheet) {
+      throw new Error('Template sheet not found: ' + data.sheetName);
+    }
+    
+    // Create new sheet from template
+    const newSheetName = generateUniqueSheetName(ss, data);
+    const newSheet = templateSheet.copyTo(ss);
+    newSheet.setName(newSheetName);
+    console.log("Created new sheet:", newSheetName);
+
     writeFacilityInfo(newSheet, data);
     writeLowerLimitDetection(newSheet, data);
     writePrecisionData(newSheet, data);
@@ -95,13 +95,8 @@ function handleSubmit(data) {
       sheetName: newSheetName
     };
   } catch (error) {
-    console.error("Error writing data:", error);
-    try {
-      ss.deleteSheet(newSheet);
-    } catch (e) {
-      console.error("Error deleting sheet after failure:", e);
-    }
-    throw error;
+    console.error("Error in handleSubmit:", error);
+    throw new Error('Failed to submit data: ' + error.message);
   }
 }
 
