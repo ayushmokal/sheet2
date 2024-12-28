@@ -14,7 +14,9 @@ import { APPS_SCRIPT_URL } from "@/config/constants";
 
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreatingSpreadsheet, setIsCreatingSpreadsheet] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [hasSubmittedData, setHasSubmittedData] = useState(false);
   const [spreadsheetId, setSpreadsheetId] = useState<string | null>(null);
   const [spreadsheetUrl, setSpreadsheetUrl] = useState<string | null>(null);
   const { toast } = useToast();
@@ -66,11 +68,13 @@ export function SQAForm() {
       return;
     }
 
+    setIsCreatingSpreadsheet(true);
     let script: HTMLScriptElement | null = null;
     const cleanup = () => {
       if (script && script.parentNode) {
         script.parentNode.removeChild(script);
       }
+      setIsCreatingSpreadsheet(false);
     };
 
     try {
@@ -125,7 +129,6 @@ export function SQAForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
     
     if (!spreadsheetId) {
       toast({
@@ -136,7 +139,6 @@ export function SQAForm() {
       return;
     }
     
-    setIsSubmitting(true);
     console.log("Submitting form data:", formData);
 
     let script: HTMLScriptElement | null = null;
@@ -144,7 +146,6 @@ export function SQAForm() {
       if (script && script.parentNode) {
         script.parentNode.removeChild(script);
       }
-      setIsSubmitting(false);
     };
 
     try {
@@ -180,6 +181,7 @@ export function SQAForm() {
       console.log("Processing response:", response);
 
       if (response.status === 'success') {
+        setHasSubmittedData(true);
         toast({
           title: "Success!",
           description: "Data has been submitted to Google Sheets successfully.",
@@ -199,6 +201,70 @@ export function SQAForm() {
     }
   };
 
+  const handleSendEmail = async () => {
+    if (!spreadsheetId) {
+      toast({
+        title: "Error",
+        description: "No spreadsheet available to send.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingEmail(true);
+    let script: HTMLScriptElement | null = null;
+    const cleanup = () => {
+      if (script && script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+      setIsSendingEmail(false);
+    };
+
+    try {
+      const callbackName = `callback_${Date.now()}`;
+      const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
+        (window as any)[callbackName] = (response: GoogleScriptResponse) => {
+          resolve(response);
+          delete (window as any)[callbackName];
+        };
+
+        script = document.createElement('script');
+        const encodedData = encodeURIComponent(JSON.stringify({
+          spreadsheetId,
+          emailTo: formData.emailTo
+        }));
+        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=sendEmail&data=${encodedData}`;
+        
+        script.onerror = () => {
+          reject(new Error('Failed to load the script'));
+          delete (window as any)[callbackName];
+        };
+
+        document.body.appendChild(script);
+      });
+
+      const response = await responsePromise;
+
+      if (response.status === 'success') {
+        toast({
+          title: "Success!",
+          description: "Email sent successfully with spreadsheet and PDF attachments.",
+        });
+      } else {
+        throw new Error(response.message || 'Failed to send email');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      cleanup();
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto p-4">
       <Card>
@@ -208,9 +274,12 @@ export function SQAForm() {
         <CardContent className="space-y-4">
           <FormActions 
             onLoadTestData={loadTestData}
-            isSubmitting={isSubmitting}
             onCreateSpreadsheet={createSpreadsheetCopy}
+            onSendEmail={handleSendEmail}
+            isCreatingSpreadsheet={isCreatingSpreadsheet}
+            isSendingEmail={isSendingEmail}
             hasSpreadsheet={!!spreadsheetId}
+            hasSubmittedData={hasSubmittedData}
           />
           <FormHeader formData={formData} handleInputChange={handleInputChange} />
           <LowerLimitDetection 
