@@ -57,11 +57,11 @@ function createSpreadsheetCopy() {
 function handleSubmit(data) {
   console.log("Starting handleSubmit with data:", data);
   
-  if (!data) {
-    throw new Error('No data provided');
+  if (!data || !data.spreadsheetId) {
+    throw new Error('No data or spreadsheetId provided');
   }
 
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = SpreadsheetApp.openById(data.spreadsheetId);
   console.log("Opened spreadsheet");
   
   // Get template sheet
@@ -232,5 +232,4 @@ function sendEmailWithNewSpreadsheet(spreadsheet, sheetName, recipientEmail) {
   
   return true;
 }
-
 `;
