@@ -12,12 +12,17 @@ function generateUniqueSheetName(spreadsheet, data) {
   const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
   const cleanSerialNumber = data.serialNumber.trim();
   
-  const baseSheetName = formattedDate + '-' + cleanSerialNumber + '-' + sanitizedFacility;
+  const baseSheetName = \`\${formattedDate}_\${cleanSerialNumber}_\${sanitizedFacility}\`;
   
   // Check if sheet name already exists
   const existingSheets = spreadsheet.getSheets().map(sheet => sheet.getName());
   if (existingSheets.includes(baseSheetName)) {
-    throw new Error('A submission with this date, serial number, and facility already exists');
+    // If exists, append a number
+    let counter = 1;
+    while (existingSheets.includes(\`\${baseSheetName}_\${counter}\`)) {
+      counter++;
+    }
+    return \`\${baseSheetName}_\${counter}\`;
   }
   
   return baseSheetName;
