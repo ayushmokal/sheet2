@@ -3,4 +3,4 @@ export const SPREADSHEET_CONFIG = {
   DEFAULT_SHEET_PREFIX: 'Data_'
 };
 
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1H5ICCqRZ146dlahO5jrNv1PKCM1oJc4A5iPJJx3s2GbeMvOXZm0NOGJeaE7XazGahA/exec';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyG362ofIYRsB4szZv8EDVI002cuYPq_qhXBEH4qA5l1xrUl_YaIQgCEWfnahI2GHtRmw/exec';
