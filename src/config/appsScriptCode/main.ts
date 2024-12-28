@@ -1,6 +1,4 @@
 export const mainScript = `
-const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
-
 function doGet(e) {
   const params = e.parameter;
   const callback = params.callback;
@@ -15,6 +13,9 @@ function doGet(e) {
         result = createSpreadsheetCopy();
         break;
       case 'submit':
+        if (!data || !data.spreadsheetId) {
+          throw new Error('No data or spreadsheetId provided');
+        }
         result = handleSubmit(data);
         break;
       default:
@@ -25,6 +26,7 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
       
   } catch (error) {
+    console.error('Error in doGet:', error);
     const errorResponse = {
       status: 'error',
       message: error.message
@@ -34,6 +36,8 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
 }
+
+const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
 
 function createSpreadsheetCopy() {
   try {
@@ -50,6 +54,7 @@ function createSpreadsheetCopy() {
       spreadsheetUrl: newSpreadsheet.getUrl()
     };
   } catch (error) {
+    console.error('Error in createSpreadsheetCopy:', error);
     throw new Error('Failed to create spreadsheet copy: ' + error.message);
   }
 }
@@ -57,10 +62,6 @@ function createSpreadsheetCopy() {
 function handleSubmit(data) {
   console.log("Starting handleSubmit with data:", data);
   
-  if (!data || !data.spreadsheetId) {
-    throw new Error('No data or spreadsheetId provided');
-  }
-
   try {
     const ss = SpreadsheetApp.openById(data.spreadsheetId);
     console.log("Opened spreadsheet");
@@ -194,37 +195,5 @@ function formatDate(dateString) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return year + '-' + month + '-' + day;
-}
-
-function sendEmailWithNewSpreadsheet(spreadsheet, sheetName, recipientEmail) {
-  const sheet = spreadsheet.getSheetByName(sheetName);
-  if (!sheet) {
-    throw new Error('Sheet not found: ' + sheetName);
-  }
-  
-  // Generate PDF from the spreadsheet
-  const pdfBlob = spreadsheet.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
-  
-  // Share the spreadsheet with the recipient
-  spreadsheet.addEditor(recipientEmail);
-  
-  const emailSubject = 'New SQA Data Submission - ' + sheetName;
-  const emailBody = 'A new SQA data submission has been recorded.\\n\\n' +
-                   'Sheet Name: ' + sheetName + '\\n' +
-                   'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
-                   'You can access the spreadsheet here: ' + spreadsheet.getUrl() + '\\n\\n' +
-                   'This is an automated message.';
-  
-  GmailApp.sendEmail(
-    recipientEmail,
-    emailSubject,
-    emailBody,
-    {
-      name: 'SQA Data System',
-      attachments: [pdfBlob]
-    }
-  );
-  
-  return true;
 }
 `;
