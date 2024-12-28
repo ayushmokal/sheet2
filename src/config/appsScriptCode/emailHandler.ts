@@ -5,20 +5,12 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
     throw new Error('Sheet not found: ' + sheetName);
   }
   
-  // Generate PDF of the sheet
-  const pdfBlob = ss.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
-  
   // Create a copy of the spreadsheet
   const spreadsheetFile = DriveApp.getFileById(ss.getId());
-  const spreadsheetBlob = spreadsheetFile.getAs('application/vnd.google-apps.spreadsheet');
-  spreadsheetBlob.setName('SQA Data - ' + sheetName + '.xlsx');
   
-  const emailSubject = 'New SQA Data Submission - ' + sheetName;
-  const emailBody = 'A new SQA data submission has been recorded.\\n\\n' +
-                   'Sheet Name: ' + sheetName + '\\n' +
-                   'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
-                   'You can access the spreadsheet here: ' + ss.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
-                   'The spreadsheet and PDF version are attached to this email.\\n\\n' +
+  const emailSubject = 'SQA Data Submission - ' + sheetName;
+  const emailBody = 'Please find attached the SQA data submission.\\n\\n' +
+                   'You can access the spreadsheet directly here: ' + ss.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
                    'This is an automated message.';
   
   GmailApp.sendEmail(
@@ -27,7 +19,7 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
     emailBody,
     {
       name: 'SQA Data System',
-      attachments: [pdfBlob, spreadsheetBlob]
+      attachments: [spreadsheetFile]
     }
   );
   
