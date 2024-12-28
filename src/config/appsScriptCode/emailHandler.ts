@@ -1,15 +1,11 @@
 export const emailHandlerScript = `
-function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
-  const sheet = ss.getSheetByName(sheetName);
-  if (!sheet) {
-    throw new Error('Sheet not found: ' + sheetName);
-  }
-  
-  // Create a temporary spreadsheet with just this sheet
+function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEmail) {
+  // Create a temporary spreadsheet for this specific sheet
   const tempSpreadsheet = SpreadsheetApp.create('Temp - ' + sheetName);
   const tempSheet = tempSpreadsheet.getSheets()[0];
+  const sheet = originalSpreadsheet.getSheetByName(sheetName);
   
-  // Copy the data and formatting from the original sheet
+  // Get source data and formatting
   const sourceRange = sheet.getDataRange();
   const sourceValues = sourceRange.getValues();
   const sourceFormats = sourceRange.getNumberFormats();
@@ -17,16 +13,20 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
   const sourceBackgrounds = sourceRange.getBackgrounds();
   const sourceMerges = sourceRange.getMergedRanges();
   
-  // Set dimensions of temp sheet
-  if (tempSheet.getMaxRows() < sourceValues.length) {
-    tempSheet.insertRows(1, sourceValues.length - tempSheet.getMaxRows());
+  // Prepare target sheet
+  const numRows = sourceValues.length;
+  const numCols = sourceValues[0].length;
+  
+  // Ensure target sheet has enough rows and columns
+  if (tempSheet.getMaxRows() < numRows) {
+    tempSheet.insertRows(1, numRows - tempSheet.getMaxRows());
   }
-  if (tempSheet.getMaxColumns() < sourceValues[0].length) {
-    tempSheet.insertColumns(1, sourceValues[0].length - tempSheet.getMaxColumns());
+  if (tempSheet.getMaxColumns() < numCols) {
+    tempSheet.insertColumns(1, numCols - tempSheet.getMaxColumns());
   }
   
-  // Copy content and formatting
-  const targetRange = tempSheet.getRange(1, 1, sourceValues.length, sourceValues[0].length);
+  // Copy data and formatting
+  const targetRange = tempSheet.getRange(1, 1, numRows, numCols);
   targetRange.setValues(sourceValues);
   targetRange.setNumberFormats(sourceFormats);
   targetRange.setFontColors(sourceFontColors);
@@ -49,22 +49,21 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
     tempSheet.getRange(row, col, numRows, numCols).merge();
   });
   
-  // Get the PDF blob
-  const pdfBlob = tempSheet.getAs(MimeType.PDF).setName('SQA Data - ' + sheetName + '.pdf');
+  // Create PDF and XLSX blobs
+  const pdfBlob = tempSheet.getAs('application/pdf')
+    .setName('SQA Data - ' + sheetName + '.pdf');
   
-  // Get the XLSX blob
-  const xlsxBlob = tempSpreadsheet.getAs(MimeType.MICROSOFT_EXCEL).setName('SQA Data - ' + sheetName + '.xlsx');
+  const xlsxBlob = tempSpreadsheet.getAs('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    .setName('SQA Data - ' + sheetName + '.xlsx');
   
-  // Delete the temporary spreadsheet
-  DriveApp.getFileById(tempSpreadsheet.getId()).setTrashed(true);
-  
+  // Send email with both attachments
   const emailSubject = 'New SQA Data Submission - ' + sheetName;
-  const emailBody = 'A new SQA data submission has been recorded.\\n\\n' +
-                   'Sheet Name: ' + sheetName + '\\n' +
-                   'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
-                   'You can access the spreadsheet here: ' + ss.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
-                   'This is an automated message.\\n\\n' +
-                   'Attachments include both PDF and XLSX formats of the submitted data.';
+  const emailBody = 
+    'A new SQA data submission has been recorded.\\n\\n' +
+    'Sheet Name: ' + sheetName + '\\n' +
+    'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
+    'Please find attached both PDF and Excel versions of the submitted data.\\n\\n' +
+    'This is an automated message.';
   
   GmailApp.sendEmail(
     recipientEmail,
@@ -75,6 +74,9 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
       attachments: [pdfBlob, xlsxBlob]
     }
   );
+  
+  // Clean up - delete temporary spreadsheet
+  DriveApp.getFileById(tempSpreadsheet.getId()).setTrashed(true);
   
   return true;
 }
