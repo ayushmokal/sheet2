@@ -1,4 +1,6 @@
 export const dataHandlerScript = `
+// ... keep existing code (other functions)
+
 function handleSubmit(data) {
   console.log("Starting handleSubmit with data:", data);
   
@@ -6,7 +8,7 @@ function handleSubmit(data) {
     throw new Error('No data provided');
   }
 
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ss = SpreadsheetApp.openById(data.spreadsheetId);
   console.log("Opened spreadsheet");
   
   // Get template sheet
@@ -29,11 +31,6 @@ function handleSubmit(data) {
     writeMorphGradeFinal(newSheet, data);
     writeQCData(newSheet, data);
 
-    // Send email with new spreadsheet if recipient is provided
-    if (data.emailTo) {
-      sendEmailWithNewSpreadsheet(ss, newSheetName, data.emailTo);
-    }
-
     return {
       status: 'success',
       message: 'Data submitted successfully',
@@ -48,6 +45,36 @@ function handleSubmit(data) {
     }
     throw error;
   }
+}
+
+function sendEmailWithNewSpreadsheet(spreadsheet, sheetName, recipientEmail) {
+  const sheet = spreadsheet.getSheetByName(sheetName);
+  if (!sheet) {
+    throw new Error('Sheet not found: ' + sheetName);
+  }
+  
+  // Generate PDF of the sheet
+  const pdfBlob = spreadsheet.getAs('application/pdf').setName('SQA Data - ' + sheetName + '.pdf');
+  
+  const emailSubject = 'New SQA Data Submission - ' + sheetName;
+  const emailBody = 'A new SQA data submission has been recorded.\\n\\n' +
+                   'Sheet Name: ' + sheetName + '\\n' +
+                   'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
+                   'You can access the spreadsheet here: ' + spreadsheet.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
+                   'A PDF version is attached to this email.\\n\\n' +
+                   'This is an automated message.';
+  
+  GmailApp.sendEmail(
+    recipientEmail,
+    emailSubject,
+    emailBody,
+    {
+      name: 'SQA Data System',
+      attachments: [pdfBlob]
+    }
+  );
+  
+  return true;
 }
 
 function writeFacilityInfo(sheet, data) {

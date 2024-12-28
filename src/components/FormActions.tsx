@@ -10,6 +10,7 @@ interface FormActionsProps {
   isSubmitting: boolean;
   hasSpreadsheet: boolean;
   hasSubmittedData: boolean;
+  emailTo?: string;
 }
 
 export function FormActions({ 
@@ -20,7 +21,8 @@ export function FormActions({
   isSendingEmail,
   isSubmitting,
   hasSpreadsheet,
-  hasSubmittedData
+  hasSubmittedData,
+  emailTo
 }: FormActionsProps) {
   return (
     <div className="flex justify-between items-center gap-4 flex-wrap">
@@ -42,7 +44,7 @@ export function FormActions({
           <FileSpreadsheet className="w-4 h-4" />
           {isCreatingSpreadsheet ? "Creating..." : hasSpreadsheet ? "Open Spreadsheet" : "Create Spreadsheet"}
         </Button>
-        {hasSubmittedData && formData?.emailTo && (
+        {hasSubmittedData && emailTo && (
           <Button
             type="button"
             variant="outline"

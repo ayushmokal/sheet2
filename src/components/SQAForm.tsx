@@ -284,6 +284,7 @@ export function SQAForm() {
             isSubmitting={isSubmitting}
             hasSpreadsheet={!!spreadsheetId}
             hasSubmittedData={hasSubmittedData}
+            emailTo={formData.emailTo}
           />
           <FormHeader 
             formData={formData} 
