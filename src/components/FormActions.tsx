@@ -42,7 +42,7 @@ export function FormActions({
           <FileSpreadsheet className="w-4 h-4" />
           {isCreatingSpreadsheet ? "Creating..." : hasSpreadsheet ? "Open Spreadsheet" : "Create Spreadsheet"}
         </Button>
-        {hasSubmittedData && (
+        {hasSubmittedData && formData?.emailTo && (
           <Button
             type="button"
             variant="outline"

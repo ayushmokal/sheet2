@@ -205,10 +205,10 @@ export function SQAForm() {
   };
 
   const handleSendEmail = async () => {
-    if (!spreadsheetId) {
+    if (!spreadsheetId || !formData.emailTo) {
       toast({
         title: "Error",
-        description: "No spreadsheet available to send.",
+        description: "Please provide an email address to send the spreadsheet.",
         variant: "destructive",
       });
       return;
