@@ -178,4 +178,36 @@ function formatDate(dateString) {
   const day = String(date.getDate()).padStart(2, '0');
   return year + '-' + month + '-' + day;
 }
+
+function sendEmailWithSheet(ss, sheet, recipientEmail) {
+  if (!sheet) {
+    throw new Error('Sheet not found');
+  }
+  
+  // Generate PDF of the sheet
+  const pdfBlob = sheet.getAs(MimeType.PDF).setName('SQA Data - ' + sheet.getName() + '.pdf');
+  
+  // Generate Excel version of the sheet
+  const xlsxBlob = sheet.getAs(MimeType.MICROSOFT_EXCEL).setName('SQA Data - ' + sheet.getName() + '.xlsx');
+  
+  const emailSubject = 'New SQA Data Submission - ' + sheet.getName();
+  const emailBody = 'A new SQA data submission has been recorded.\\n\\n' +
+                   'Sheet Name: ' + sheet.getName() + '\\n' +
+                   'Date: ' + new Date().toLocaleDateString() + '\\n\\n' +
+                   'You can access the spreadsheet here: ' + ss.getUrl() + '#gid=' + sheet.getSheetId() + '\\n\\n' +
+                   'The submitted data sheet is attached to this email in both PDF and Excel formats.\\n\\n' +
+                   'This is an automated message.';
+  
+  GmailApp.sendEmail(
+    recipientEmail,
+    emailSubject,
+    emailBody,
+    {
+      name: 'SQA Data System',
+      attachments: [pdfBlob, xlsxBlob]
+    }
+  );
+  
+  return true;
+}
 `;
