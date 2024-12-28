@@ -62,7 +62,7 @@ function handleSubmit(data) {
     writeMorphGradeFinal(newSheet, data);
     writeQCData(newSheet, data);
 
-    // Send email with new spreadsheet if recipient is provided
+    // Send email with new sheet if recipient is provided
     if (data.emailTo) {
       sendEmailWithSheet(ss, newSheet, data.emailTo);
     }
@@ -74,6 +74,7 @@ function handleSubmit(data) {
     };
   } catch (error) {
     console.error("Error writing data:", error);
+    // Clean up the new sheet if there was an error
     try {
       ss.deleteSheet(newSheet);
     } catch (e) {
