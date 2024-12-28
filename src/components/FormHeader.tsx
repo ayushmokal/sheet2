@@ -10,9 +10,10 @@ interface FormHeaderProps {
     emailTo?: string;
   };
   handleInputChange: (section: string, field: string, value: string) => void;
+  hasSubmittedData: boolean;
 }
 
-export function FormHeader({ formData, handleInputChange }: FormHeaderProps) {
+export function FormHeader({ formData, handleInputChange, hasSubmittedData }: FormHeaderProps) {
   return (
     <Card>
       <CardContent className="pt-6">
@@ -53,15 +54,17 @@ export function FormHeader({ formData, handleInputChange }: FormHeaderProps) {
               required
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Email Results To</label>
-            <Input
-              type="email"
-              value={formData.emailTo || ''}
-              onChange={(e) => handleInputChange("emailTo", "", e.target.value)}
-              placeholder="Enter email address"
-            />
-          </div>
+          {hasSubmittedData && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email Results To</label>
+              <Input
+                type="email"
+                value={formData.emailTo || ''}
+                onChange={(e) => handleInputChange("emailTo", "", e.target.value)}
+                placeholder="Enter email address"
+              />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

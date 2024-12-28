@@ -285,7 +285,11 @@ export function SQAForm() {
             hasSpreadsheet={!!spreadsheetId}
             hasSubmittedData={hasSubmittedData}
           />
-          <FormHeader formData={formData} handleInputChange={handleInputChange} />
+          <FormHeader 
+            formData={formData} 
+            handleInputChange={handleInputChange} 
+            hasSubmittedData={hasSubmittedData}
+          />
           <LowerLimitDetection 
             data={formData.lowerLimitDetection}
             handleInputChange={handleInputChange}
