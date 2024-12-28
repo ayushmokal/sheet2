@@ -1,4 +1,3 @@
-export const mainScript = `
 function doGet(e) {
   const params = e.parameter;
   const callback = params.callback;
@@ -76,13 +75,12 @@ function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
     const pdfBlob = spreadsheet.getAs('application/pdf')
       .setName('SQA Data.pdf');
     
-    // Get the spreadsheet as XLSX
-    const xlsxBlob = spreadsheet.getAs('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-      .setName('SQA Data.xlsx');
+    // Get the spreadsheet URL instead of trying to attach it
+    const spreadsheetUrl = spreadsheet.getUrl();
     
     const emailSubject = 'SQA Data Submission';
-    const emailBody = 'Please find attached the SQA data submission spreadsheet and PDF.\n\n' +
-                     'Spreadsheet URL: ' + spreadsheet.getUrl() + '\n\n' +
+    const emailBody = 'Please find attached the SQA data submission PDF.\n\n' +
+                     'You can access the spreadsheet directly here: ' + spreadsheetUrl + '\n\n' +
                      'This is an automated message.';
     
     GmailApp.sendEmail(
@@ -90,7 +88,7 @@ function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
       emailSubject,
       emailBody,
       {
-        attachments: [pdfBlob, xlsxBlob],
+        attachments: [pdfBlob],
         name: 'SQA Data System'
       }
     );
@@ -238,4 +236,3 @@ function writeQCData(sheet, data) {
   }
   console.log("Wrote QC data");
 }
-`;
