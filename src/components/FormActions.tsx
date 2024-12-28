@@ -7,6 +7,7 @@ interface FormActionsProps {
   onSendEmail: () => void;
   isCreatingSpreadsheet: boolean;
   isSendingEmail: boolean;
+  isSubmitting: boolean;
   hasSpreadsheet: boolean;
   hasSubmittedData: boolean;
 }
@@ -17,6 +18,7 @@ export function FormActions({
   onSendEmail,
   isCreatingSpreadsheet,
   isSendingEmail,
+  isSubmitting,
   hasSpreadsheet,
   hasSubmittedData
 }: FormActionsProps) {
@@ -56,9 +58,9 @@ export function FormActions({
       <Button 
         type="submit" 
         className="bg-primary text-white"
-        disabled={!hasSpreadsheet}
+        disabled={!hasSpreadsheet || isSubmitting}
       >
-        Submit Data
+        {isSubmitting ? "Submitting..." : "Submit Data"}
       </Button>
     </div>
   );

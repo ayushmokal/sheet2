@@ -16,6 +16,7 @@ export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isCreatingSpreadsheet, setIsCreatingSpreadsheet] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmittedData, setHasSubmittedData] = useState(false);
   const [spreadsheetId, setSpreadsheetId] = useState<string | null>(null);
   const [spreadsheetUrl, setSpreadsheetUrl] = useState<string | null>(null);
@@ -139,6 +140,7 @@ export function SQAForm() {
       return;
     }
     
+    setIsSubmitting(true);
     console.log("Submitting form data:", formData);
 
     let script: HTMLScriptElement | null = null;
@@ -146,6 +148,7 @@ export function SQAForm() {
       if (script && script.parentNode) {
         script.parentNode.removeChild(script);
       }
+      setIsSubmitting(false);
     };
 
     try {
@@ -278,6 +281,7 @@ export function SQAForm() {
             onSendEmail={handleSendEmail}
             isCreatingSpreadsheet={isCreatingSpreadsheet}
             isSendingEmail={isSendingEmail}
+            isSubmitting={isSubmitting}
             hasSpreadsheet={!!spreadsheetId}
             hasSubmittedData={hasSubmittedData}
           />
