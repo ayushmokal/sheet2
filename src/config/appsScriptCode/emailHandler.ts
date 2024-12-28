@@ -50,16 +50,18 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
     const numCols = mergedRange.getNumColumns();
     tempSheet.getRange(row, col, numRows, numCols).merge();
   });
+
+  // Get the file ID of the temporary spreadsheet
+  const tempFileId = tempSpreadsheet.getId();
+  const tempFile = DriveApp.getFileById(tempFileId);
   
-  // Get the PDF version
-  const pdfBlob = DriveApp.getFileById(tempSpreadsheet.getId())
-    .getAs(MimeType.PDF)
-    .setName('SQA Data - ' + sheetName + '.pdf');
+  // Create PDF version
+  const pdfBlob = tempFile.getAs(MimeType.PDF);
+  pdfBlob.setName('SQA Data - ' + sheetName + '.pdf');
   
-  // Get the Excel version
-  const xlsxBlob = DriveApp.getFileById(tempSpreadsheet.getId())
-    .getAs(MimeType.MICROSOFT_EXCEL)
-    .setName('SQA Data - ' + sheetName + '.xlsx');
+  // Create Excel version
+  const xlsxBlob = tempFile.getAs(MimeType.MICROSOFT_EXCEL);
+  xlsxBlob.setName('SQA Data - ' + sheetName + '.xlsx');
   
   // Send email with both attachments
   const emailSubject = 'New SQA Data Submission - ' + sheetName;
@@ -81,7 +83,7 @@ function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
   );
   
   // Clean up - delete temporary spreadsheet
-  DriveApp.getFileById(tempSpreadsheet.getId()).setTrashed(true);
+  tempFile.setTrashed(true);
   
   console.log("Email sent successfully to:", recipientEmail);
   return true;
