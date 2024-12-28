@@ -1,9 +1,11 @@
 export const emailHandlerScript = `
-function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEmail) {
+function sendEmailWithNewSpreadsheet(ss, sheetName, recipientEmail) {
+  console.log("Starting email process for sheet:", sheetName);
+  
   // Create a temporary spreadsheet for this specific sheet
   const tempSpreadsheet = SpreadsheetApp.create('Temp - ' + sheetName);
   const tempSheet = tempSpreadsheet.getSheets()[0];
-  const sheet = originalSpreadsheet.getSheetByName(sheetName);
+  const sheet = ss.getSheetByName(sheetName);
   
   // Get source data and formatting
   const sourceRange = sheet.getDataRange();
@@ -49,12 +51,14 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
     tempSheet.getRange(row, col, numRows, numCols).merge();
   });
   
-  // Create PDF blob
-  const pdfBlob = DriveApp.getFileById(tempSpreadsheet.getId()).getAs(MimeType.PDF)
+  // Get the PDF version
+  const pdfBlob = DriveApp.getFileById(tempSpreadsheet.getId())
+    .getAs(MimeType.PDF)
     .setName('SQA Data - ' + sheetName + '.pdf');
   
-  // Create XLSX blob
-  const xlsxBlob = DriveApp.getFileById(tempSpreadsheet.getId()).getAs(MimeType.MICROSOFT_EXCEL_XLSX)
+  // Get the Excel version
+  const xlsxBlob = DriveApp.getFileById(tempSpreadsheet.getId())
+    .getAs(MimeType.MICROSOFT_EXCEL)
     .setName('SQA Data - ' + sheetName + '.xlsx');
   
   // Send email with both attachments
@@ -79,6 +83,7 @@ function sendEmailWithNewSpreadsheet(originalSpreadsheet, sheetName, recipientEm
   // Clean up - delete temporary spreadsheet
   DriveApp.getFileById(tempSpreadsheet.getId()).setTrashed(true);
   
+  console.log("Email sent successfully to:", recipientEmail);
   return true;
 }
 `;
