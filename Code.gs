@@ -51,6 +51,7 @@ function createSpreadsheetCopy() {
     const newFile = templateFile.makeCopy('SQA Data Collection Form (Copy)');
     const newSpreadsheet = SpreadsheetApp.openById(newFile.getId());
     
+    // Set sharing permissions to anyone with link can edit
     newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     
     return {
