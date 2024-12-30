@@ -5,7 +5,6 @@ function createSpreadsheetCopy() {
     const newFile = templateFile.makeCopy('SQA Data Collection Form (Copy)');
     const newSpreadsheet = SpreadsheetApp.openById(newFile.getId());
     
-    // Make the spreadsheet accessible to anyone with the link
     newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     
     return {
@@ -20,75 +19,88 @@ function createSpreadsheetCopy() {
 }
 
 function writeFacilityInfo(sheet, data) {
-  sheet.getRange('B3:H3').setValue(data.facility);
-  sheet.getRange('B4:H4').setValue(data.date);
-  sheet.getRange('B5:H5').setValue(data.technician);
-  sheet.getRange('B6:H6').setValue(data.serialNumber);
+  sheet.getRange('C3:I3').setValue(data.facility);
+  sheet.getRange('C4:I4').setValue(data.serialNumber);
+  sheet.getRange('C5:I5').setValue(data.date);
+  sheet.getRange('C6:I6').setValue(data.batchId);
   console.log("Wrote facility info");
 }
 
-function writeLowerLimitDetection(sheet, data) {
-  for (let i = 0; i < data.lowerLimitDetection.conc.length; i++) {
-    sheet.getRange('B' + (12 + i)).setValue(data.lowerLimitDetection.conc[i]);
-    sheet.getRange('C' + (12 + i)).setValue(data.lowerLimitDetection.msc[i]);
+function writeLinearityData(sheet, data) {
+  // Write SQA values
+  for (let i = 0; i < data.linearity.sqa.length; i++) {
+    sheet.getRange('D' + (12 + i)).setValue(data.linearity.sqa[i]);
   }
-  console.log("Wrote Lower Limit Detection data");
+  console.log("Wrote Linearity data");
 }
 
 function writePrecisionData(sheet, data) {
-  // Level 1
-  for (let i = 0; i < data.precisionLevel1.conc.length; i++) {
-    sheet.getRange('B' + (24 + i)).setValue(data.precisionLevel1.conc[i]);
-    sheet.getRange('C' + (24 + i)).setValue(data.precisionLevel1.motility[i]);
-    sheet.getRange('D' + (24 + i)).setValue(data.precisionLevel1.morph[i]);
+  // Sample #1
+  for (let i = 0; i < data.precision.sample1.automated.length; i++) {
+    sheet.getRange('C' + (63 + i)).setValue(data.precision.sample1.automated[i]);
   }
-  console.log("Wrote Precision Level 1 data");
+  for (let i = 0; i < data.precision.sample1.manual.length; i++) {
+    sheet.getRange('E' + (63 + i)).setValue(data.precision.sample1.manual[i]);
+  }
 
-  // Level 2
-  for (let i = 0; i < data.precisionLevel2.conc.length; i++) {
-    sheet.getRange('B' + (36 + i)).setValue(data.precisionLevel2.conc[i]);
-    sheet.getRange('C' + (36 + i)).setValue(data.precisionLevel2.motility[i]);
-    sheet.getRange('D' + (36 + i)).setValue(data.precisionLevel2.morph[i]);
+  // Sample #2
+  for (let i = 0; i < data.precision.sample2.automated.length; i++) {
+    sheet.getRange('C' + (74 + i)).setValue(data.precision.sample2.automated[i]);
   }
-  console.log("Wrote Precision Level 2 data");
+  for (let i = 0; i < data.precision.sample2.manual.length; i++) {
+    sheet.getRange('E' + (74 + i)).setValue(data.precision.sample2.manual[i]);
+  }
+
+  // Sample #3
+  for (let i = 0; i < data.precision.sample3.automated.length; i++) {
+    sheet.getRange('C' + (85 + i)).setValue(data.precision.sample3.automated[i]);
+  }
+  for (let i = 0; i < data.precision.sample3.manual.length; i++) {
+    sheet.getRange('E' + (85 + i)).setValue(data.precision.sample3.manual[i]);
+  }
+
+  // Sample #4
+  for (let i = 0; i < data.precision.sample4.automated.length; i++) {
+    sheet.getRange('C' + (96 + i)).setValue(data.precision.sample4.automated[i]);
+  }
+  for (let i = 0; i < data.precision.sample4.manual.length; i++) {
+    sheet.getRange('E' + (96 + i)).setValue(data.precision.sample4.manual[i]);
+  }
+
+  // Sample #5
+  for (let i = 0; i < data.precision.sample5.automated.length; i++) {
+    sheet.getRange('C' + (107 + i)).setValue(data.precision.sample5.automated[i]);
+  }
+  for (let i = 0; i < data.precision.sample5.manual.length; i++) {
+    sheet.getRange('E' + (107 + i)).setValue(data.precision.sample5.manual[i]);
+  }
+  
+  console.log("Wrote Precision data");
 }
 
 function writeAccuracyData(sheet, data) {
-  for (let i = 0; i < data.accuracy.sqa.length; i++) {
-    sheet.getRange('A' + (48 + i)).setValue(data.accuracy.sqa[i]);
-    sheet.getRange('B' + (48 + i)).setValue(data.accuracy.manual[i]);
-    sheet.getRange('C' + (48 + i)).setValue(data.accuracy.sqaMotility[i]);
-    sheet.getRange('D' + (48 + i)).setValue(data.accuracy.manualMotility[i]);
-    sheet.getRange('E' + (48 + i)).setValue(data.accuracy.sqaMorph[i]);
-    sheet.getRange('F' + (48 + i)).setValue(data.accuracy.manualMorph[i]);
+  // Write Manual values
+  for (let i = 0; i < data.accuracy.manual.length; i++) {
+    sheet.getRange('C' + (119 + i)).setValue(data.accuracy.manual[i]);
   }
   console.log("Wrote Accuracy data");
 }
 
-function writeMorphGradeFinal(sheet, data) {
-  const tp = parseFloat(data.accuracy.morphGradeFinal.tp) || 0;
-  const tn = parseFloat(data.accuracy.morphGradeFinal.tn) || 0;
-  const fp = parseFloat(data.accuracy.morphGradeFinal.fp) || 0;
-  const fn = parseFloat(data.accuracy.morphGradeFinal.fn) || 0;
-
-  sheet.getRange('L48').setValue(tp);
-  sheet.getRange('L49').setValue(tn);
-  sheet.getRange('L50').setValue(fp);
-  sheet.getRange('L51').setValue(fn);
-
-  const sensitivity = tp + fn !== 0 ? (tp / (tp + fn)) * 100 : 0;
-  const specificity = fp + tn !== 0 ? (tn / (fp + tn)) * 100 : 0;
-
-  sheet.getRange('L46').setValue(sensitivity);
-  sheet.getRange('L47').setValue(specificity);
-  console.log("Wrote Morph Grade Final data");
-}
-
-function writeQCData(sheet, data) {
-  for (let i = 0; i < data.qc.level1.length; i++) {
-    sheet.getRange('B' + (71 + i)).setValue(data.qc.level1[i]);
-    sheet.getRange('C' + (71 + i)).setValue(data.qc.level2[i]);
+function writeLiveSamplePrecision(sheet, data) {
+  // First set
+  for (let i = 0; i < data.liveSamplePrecision.set1.conc.length; i++) {
+    sheet.getRange('C' + (155 + i)).setValue(data.liveSamplePrecision.set1.conc[i]);
+    sheet.getRange('D' + (155 + i)).setValue(data.liveSamplePrecision.set1.motility[i]);
+    sheet.getRange('E' + (155 + i)).setValue(data.liveSamplePrecision.set1.morphology[i]);
   }
-  console.log("Wrote QC data");
+
+  // Second set
+  for (let i = 0; i < data.liveSamplePrecision.set2.conc.length; i++) {
+    sheet.getRange('C' + (165 + i)).setValue(data.liveSamplePrecision.set2.conc[i]);
+    sheet.getRange('D' + (165 + i)).setValue(data.liveSamplePrecision.set2.motility[i]);
+    sheet.getRange('E' + (165 + i)).setValue(data.liveSamplePrecision.set2.morphology[i]);
+  }
+  
+  console.log("Wrote Live Sample Precision data");
 }
 `;
