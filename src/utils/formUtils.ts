@@ -30,7 +30,36 @@ export const initialFormData = {
     }
   },
   accuracy: {
-    manual: Array(5).fill("")
+    sqa: Array(5).fill(""),
+    manual: Array(5).fill(""),
+    sqaMotility: Array(5).fill(""),
+    manualMotility: Array(5).fill(""),
+    sqaMorph: Array(5).fill(""),
+    manualMorph: Array(5).fill(""),
+    morphGradeFinal: {
+      tp: "",
+      tn: "",
+      fp: "",
+      fn: ""
+    }
+  },
+  lowerLimitDetection: {
+    conc: Array(5).fill(""),
+    msc: Array(5).fill("")
+  },
+  precisionLevel1: {
+    conc: Array(5).fill(""),
+    motility: Array(5).fill(""),
+    morph: Array(5).fill("")
+  },
+  precisionLevel2: {
+    conc: Array(5).fill(""),
+    motility: Array(5).fill(""),
+    morph: Array(5).fill("")
+  },
+  qc: {
+    level1: Array(5).fill(""),
+    level2: Array(5).fill("")
   },
   liveSamplePrecision: {
     set1: {
@@ -78,7 +107,36 @@ export const getTestData = () => ({
     }
   },
   accuracy: {
-    manual: ["1", "2", "3", "4", "5"]
+    sqa: Array(5).fill("1"),
+    manual: Array(5).fill("1"),
+    sqaMotility: Array(5).fill("50"),
+    manualMotility: Array(5).fill("50"),
+    sqaMorph: Array(5).fill("10"),
+    manualMorph: Array(5).fill("10"),
+    morphGradeFinal: {
+      tp: "10",
+      tn: "10",
+      fp: "5",
+      fn: "5"
+    }
+  },
+  lowerLimitDetection: {
+    conc: ["1", "2", "3", "4", "5"],
+    msc: ["1", "2", "3", "4", "5"]
+  },
+  precisionLevel1: {
+    conc: ["1", "2", "3", "4", "5"],
+    motility: ["10", "20", "30", "40", "50"],
+    morph: ["1", "2", "3", "4", "5"]
+  },
+  precisionLevel2: {
+    conc: ["6", "7", "8", "9", "10"],
+    motility: ["60", "70", "80", "90", "100"],
+    morph: ["6", "7", "8", "9", "10"]
+  },
+  qc: {
+    level1: ["1", "2", "3", "4", "5"],
+    level2: ["6", "7", "8", "9", "10"]
   },
   liveSamplePrecision: {
     set1: {
