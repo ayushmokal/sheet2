@@ -3,6 +3,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormHeader } from "./FormHeader";
 import { FormActions } from "./FormActions";
+import { LinearitySection } from "./LinearitySection";
+import { PrecisionSection } from "./PrecisionSection";
+import { AccuracySection } from "./AccuracySection";
+import { LiveSamplePrecisionSection } from "./LiveSamplePrecisionSection";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
 import { APPS_SCRIPT_URL } from "@/config/constants";
@@ -285,6 +289,43 @@ export function SQAForm() {
             formData={formData} 
             handleInputChange={handleInputChange} 
             hasSubmittedData={hasSubmittedData}
+          />
+          <LinearitySection
+            data={formData.linearity}
+            handleInputChange={handleInputChange}
+          />
+          <PrecisionSection
+            sampleNumber={1}
+            data={formData.precision.sample1}
+            handleInputChange={handleInputChange}
+          />
+          <PrecisionSection
+            sampleNumber={2}
+            data={formData.precision.sample2}
+            handleInputChange={handleInputChange}
+          />
+          <PrecisionSection
+            sampleNumber={3}
+            data={formData.precision.sample3}
+            handleInputChange={handleInputChange}
+          />
+          <PrecisionSection
+            sampleNumber={4}
+            data={formData.precision.sample4}
+            handleInputChange={handleInputChange}
+          />
+          <PrecisionSection
+            sampleNumber={5}
+            data={formData.precision.sample5}
+            handleInputChange={handleInputChange}
+          />
+          <AccuracySection
+            data={formData.accuracy}
+            handleInputChange={handleInputChange}
+          />
+          <LiveSamplePrecisionSection
+            data={formData.liveSamplePrecision}
+            handleInputChange={handleInputChange}
           />
         </CardContent>
       </Card>
