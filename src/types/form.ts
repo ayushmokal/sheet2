@@ -1,40 +1,48 @@
 export interface FormData {
   facility: string;
   date: string;
-  technician: string;
   serialNumber: string;
+  batchId: string;
   emailTo?: string;
-  lowerLimitDetection: {
-    conc: string[];
-    msc: string[];
-  };
-  precisionLevel1: {
-    conc: string[];
-    motility: string[];
-    morph: string[];
-  };
-  precisionLevel2: {
-    conc: string[];
-    motility: string[];
-    morph: string[];
-  };
-  accuracy: {
+  linearity: {
     sqa: string[];
-    manual: string[];
-    sqaMotility: string[];
-    manualMotility: string[];
-    sqaMorph: string[];
-    manualMorph: string[];
-    morphGradeFinal: {
-      tp: string;
-      tn: string;
-      fp: string;
-      fn: string;
+  };
+  precision: {
+    sample1: {
+      automated: string[];
+      manual: string[];
+    };
+    sample2: {
+      automated: string[];
+      manual: string[];
+    };
+    sample3: {
+      automated: string[];
+      manual: string[];
+    };
+    sample4: {
+      automated: string[];
+      manual: string[];
+    };
+    sample5: {
+      automated: string[];
+      manual: string[];
     };
   };
-  qc: {
-    level1: string[];
-    level2: string[];
+  accuracy: {
+    manual: string[];
+  };
+  liveSamplePrecision: {
+    set1: {
+      conc: string[];
+      motility: string[];
+      morphology: string[];
+    };
+    set2: {
+      conc: string[];
+      motility: string[];
+      morphology: string[];
+    };
   };
 }
 

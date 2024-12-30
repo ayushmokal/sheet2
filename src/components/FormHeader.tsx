@@ -5,8 +5,8 @@ interface FormHeaderProps {
   formData: {
     facility: string;
     date: string;
-    technician: string;
     serialNumber: string;
+    batchId: string;
     emailTo?: string;
   };
   handleInputChange: (section: string, field: string, value: string) => void;
@@ -37,20 +37,20 @@ export function FormHeader({ formData, handleInputChange, hasSubmittedData }: Fo
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Technician Name</label>
-            <Input
-              type="text"
-              value={formData.technician}
-              onChange={(e) => handleInputChange("technician", "", e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Serial Number</label>
+            <label className="text-sm font-medium">SQA Serial Number</label>
             <Input
               type="text"
               value={formData.serialNumber}
               onChange={(e) => handleInputChange("serialNumber", "", e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Batch ID</label>
+            <Input
+              type="text"
+              value={formData.batchId}
+              onChange={(e) => handleInputChange("batchId", "", e.target.value)}
               required
             />
           </div>
