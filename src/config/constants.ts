@@ -1,2 +1,2 @@
-export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby9dc176rYc1q3BoelgbjFCEfqytlZ5dHKgghx_TU-FYTUwldbWMKt-DiGPj7Dekn-BTw/exec';
+export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyByJVeeHx2kju3oLs3AkcwZIBrg6Z-dn3n3OnYlLzxwPrS9A40UOp5EVnngYARac9_/exec';
 export const TEMPLATE_SPREADSHEET_ID = '19LpAqJxn_XNFlxFRcV0oZiq0d4L4zQLQbj7CRtNqW9g';
