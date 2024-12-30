@@ -2,11 +2,6 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormHeader } from "./FormHeader";
-import { LowerLimitDetection } from "./LowerLimitDetection";
-import { PrecisionSection } from "./PrecisionSection";
-import { AccuracySection } from "./AccuracySection";
-import { QCSection } from "./QCSection";
-import { MorphGradeFinalSection } from "./MorphGradeFinalSection";
 import { FormActions } from "./FormActions";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
@@ -272,7 +267,7 @@ export function SQAForm() {
     <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto p-4">
       <Card>
         <CardHeader>
-          <CardTitle>SQA Precision / Accuracy / Lower Limit Detection Study</CardTitle>
+          <CardTitle>SQA Precision / Accuracy Study</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <FormActions 
@@ -290,32 +285,6 @@ export function SQAForm() {
             formData={formData} 
             handleInputChange={handleInputChange} 
             hasSubmittedData={hasSubmittedData}
-          />
-          <LowerLimitDetection 
-            data={formData.lowerLimitDetection}
-            handleInputChange={handleInputChange}
-          />
-          <PrecisionSection 
-            level={1}
-            data={formData.precisionLevel1}
-            handleInputChange={handleInputChange}
-          />
-          <PrecisionSection 
-            level={2}
-            data={formData.precisionLevel2}
-            handleInputChange={handleInputChange}
-          />
-          <AccuracySection
-            data={formData.accuracy}
-            handleInputChange={handleInputChange}
-          />
-          <MorphGradeFinalSection
-            data={formData.accuracy.morphGradeFinal}
-            handleInputChange={handleInputChange}
-          />
-          <QCSection
-            data={formData.qc}
-            handleInputChange={handleInputChange}
           />
         </CardContent>
       </Card>
