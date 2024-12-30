@@ -30,36 +30,7 @@ export interface FormData {
     };
   };
   accuracy: {
-    sqa: string[];
     manual: string[];
-    sqaMotility: string[];
-    manualMotility: string[];
-    sqaMorph: string[];
-    manualMorph: string[];
-    morphGradeFinal: {
-      tp: string;
-      tn: string;
-      fp: string;
-      fn: string;
-    };
-  };
-  lowerLimitDetection: {
-    conc: string[];
-    msc: string[];
-  };
-  precisionLevel1: {
-    conc: string[];
-    motility: string[];
-    morph: string[];
-  };
-  precisionLevel2: {
-    conc: string[];
-    motility: string[];
-    morph: string[];
-  };
-  qc: {
-    level1: string[];
-    level2: string[];
   };
   liveSamplePrecision: {
     set1: {
