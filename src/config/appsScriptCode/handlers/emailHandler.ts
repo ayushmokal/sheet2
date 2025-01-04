@@ -1,31 +1,41 @@
 export const emailHandlerScript = `
-function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
+function sendAdminNotification(data, spreadsheetUrl, pdfUrl) {
+  const subject = 'New SQA Data Submission - ' + data.facility;
+  const body = \`New SQA data submission received:
+    
+Facility: \${data.facility}
+Date: \${data.date}
+Serial Number: \${data.serialNumber}
+Batch ID: \${data.batchId}
+Client Email: \${data.emailTo}
+Client Phone: \${data.phone}
+
+Spreadsheet: \${spreadsheetUrl}
+PDF: \${pdfUrl}\`;
+
+  GmailApp.sendEmail('ayushmokal19@gmail.com', subject, body);
+  logEmailSend(data, spreadsheetUrl, pdfUrl);
+}
+
+function logEmailSend(data, spreadsheetUrl, pdfUrl) {
   try {
-    const spreadsheetUrl = spreadsheet.getUrl();
+    const logSheet = SpreadsheetApp.openById('1n_TZcqcW3CyPG9QfAv4E9wDhmiT9vm0lAnzHGjd6yV4').getActiveSheet();
+    const timestamp = new Date();
     
-    const emailSubject = 'SQA Data Submission';
-    const emailBody = 'Please find attached the SQA data submission spreadsheet.\\n\\n' +
-                     'You can access the spreadsheet directly here: ' + spreadsheetUrl + '\\n\\n' +
-                     'This is an automated message.';
+    logSheet.appendRow([
+      timestamp,
+      data.facility,
+      data.date,
+      data.serialNumber,
+      data.batchId,
+      data.emailTo,
+      data.phone,
+      spreadsheetUrl,
+      pdfUrl
+    ]);
     
-    const spreadsheetFile = DriveApp.getFileById(spreadsheet.getId());
-    
-    GmailApp.sendEmail(
-      recipientEmail,
-      emailSubject,
-      emailBody,
-      {
-        attachments: [spreadsheetFile],
-        name: 'SQA Data System'
-      }
-    );
-    
-    return {
-      status: 'success',
-      message: 'Email sent successfully'
-    };
+    console.log("Email send logged successfully");
   } catch (error) {
-    console.error('Error sending email:', error);
-    throw new Error('Failed to send email: ' + error.message);
+    console.error("Error logging email send:", error);
   }
 }`;

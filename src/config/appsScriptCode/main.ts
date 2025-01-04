@@ -1,5 +1,5 @@
-export const mainScript = `
-const TEMPLATE_SPREADSHEET_ID = '19LpAqJxn_XNFlxFRcV0oZiq0d4L4zQLQbj7CRtNqW9g';
+const TEMPLATE_SPREADSHEET_ID = '1baU2-peCdvKUvbJ7x_vbQsA8koQEN7VAbBGce92CCF0';
+const SUBMISSION_RECORD_SHEET_ID = '1n_TZcqcW3CyPG9QfAv4E9wDhmiT9vm0lAnzHGjd6yV4';
 
 function doGet(e) {
   const params = e.parameter;
@@ -19,13 +19,6 @@ function doGet(e) {
           throw new Error('No data or spreadsheetId provided');
         }
         result = handleSubmit(data);
-        break;
-      case 'sendEmail':
-        if (!data || !data.spreadsheetId || !data.emailTo) {
-          throw new Error('Missing required data for sending email');
-        }
-        const ss = SpreadsheetApp.openById(data.spreadsheetId);
-        result = sendEmailWithSpreadsheet(ss, data.emailTo);
         break;
       default:
         throw new Error('Invalid action');
@@ -72,11 +65,18 @@ function handleSubmit(data) {
     writePrecisionData(newSheet, data);
     writeAccuracyData(newSheet, data);
     writeLiveSamplePrecision(newSheet, data);
+    
+    // Generate PDF and send email
+    const pdfUrl = generateAndSavePDF(ss, newSheetName, data);
+    sendAdminNotification(data, ss.getUrl(), pdfUrl);
+    
+    logSubmission(data);
 
     return {
       status: 'success',
       message: 'Data submitted successfully',
-      sheetName: newSheetName
+      sheetName: newSheetName,
+      pdfUrl: pdfUrl
     };
   } catch (error) {
     console.error("Error writing data:", error);
@@ -105,4 +105,27 @@ function generateUniqueSheetName(ss, data) {
   }
   
   return sheetName;
-}`;
+}
+
+function logSubmission(data) {
+  try {
+    const logSheet = SpreadsheetApp.openById(SUBMISSION_RECORD_SHEET_ID).getActiveSheet();
+    const timestamp = new Date();
+    
+    logSheet.appendRow([
+      timestamp,
+      data.facility,
+      data.date,
+      data.serialNumber,
+      data.batchId,
+      data.emailTo,
+      data.phone,
+      data.spreadsheetUrl,
+      data.pdfUrl
+    ]);
+    
+    console.log("Submission logged successfully");
+  } catch (error) {
+    console.error("Error logging submission:", error);
+  }
+}
