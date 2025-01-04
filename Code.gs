@@ -1,7 +1,8 @@
-const TEMPLATE_SPREADSHEET_ID = '1NN-_CgDUpIrzW_Rlsa5FHPnGqE9hIwC4jEjaBVG3tWU';
+const TEMPLATE_SPREADSHEET_ID = '1baU2-peCdvKUvbJ7x_vbQsA8koQEN7VAbBGce92CCF0';
 const ADMIN_EMAIL = 'ayushmokal13@gmail.com';
 const PDF_FOLDER_ID = '1Z9dygHEDb-ZOSzAVqxIFTu7iJ7ADgWdD';
 const EMAIL_LOG_SPREADSHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
+const TEMPLATE_SHEET_NAME = 'template 2';
 
 function doGet(e) {
   const params = e.parameter;
@@ -62,10 +63,10 @@ function handleSubmit(data) {
   
   try {
     const ss = SpreadsheetApp.openById(data.spreadsheetId);
-    const sheet = ss.getSheetByName('Results');
+    const sheet = ss.getSheetByName(TEMPLATE_SHEET_NAME);
     
     if (!sheet) {
-      throw new Error('Results sheet not found');
+      throw new Error('Template sheet not found');
     }
     
     // Write data to spreadsheet
@@ -91,13 +92,6 @@ function handleSubmit(data) {
     const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
     const cleanSerialNumber = data.serialNumber.trim();
     const fileName = `${formattedDate}-${cleanSerialNumber}-${sanitizedFacility}`;
-    
-    const pdfOptions = {
-      fitw: true,
-      portrait: true,
-      size: 'A4',
-      gridlines: false
-    };
     
     const pdfBlob = ss.getAs(MimeType.PDF).setName(`${fileName}.pdf`);
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
