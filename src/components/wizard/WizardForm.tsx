@@ -108,32 +108,32 @@ export function WizardForm({
           <div className="space-y-6">
             {steps[currentStep].component}
             <div className="flex justify-between mt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={previousStep}
-                disabled={currentStep === 0 || isSubmitting}
-              >
-                Previous
-              </Button>
+              <div className="space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={previousStep}
+                  disabled={currentStep === 0 || isSubmitting}
+                >
+                  Previous
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onLoadTestData}
+                  disabled={isSubmitting}
+                >
+                  Load Test Data
+                </Button>
+              </div>
               {currentStep === steps.length - 1 ? (
-                <div className="space-x-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onLoadTestData}
-                    disabled={isSubmitting}
-                  >
-                    Load Test Data
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-primary text-white"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit Data"}
-                  </Button>
-                </div>
+                <Button
+                  type="submit"
+                  className="bg-primary text-white"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Data"}
+                </Button>
               ) : (
                 <Button
                   type="button"
