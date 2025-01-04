@@ -2,8 +2,6 @@ const TEMPLATE_SPREADSHEET_ID = '1baU2-peCdvKUvbJ7x_vbQsA8koQEN7VAbBGce92CCF0';
 const ADMIN_EMAIL = 'ayushmokal13@gmail.com';
 const PDF_FOLDER_ID = '1Z9dygHEDb-ZOSzAVqxIFTu7iJ7ADgWdD';
 const EMAIL_LOG_SPREADSHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
-const TEMPLATE_SHEET_NAME = 'template 2';
-const RESULTS_SHEET_NAME = 'Results';
 
 function doGet(e) {
   const params = e.parameter;
@@ -14,11 +12,9 @@ function doGet(e) {
   let result;
   
   try {
-    if (action === 'createCopy') {
-      result = createSpreadsheetCopy();
-    } else if (action === 'submit') {
-      if (!data || !data.spreadsheetId) {
-        throw new Error('No data or spreadsheetId provided');
+    if (action === 'submit') {
+      if (!data) {
+        throw new Error('No data provided');
       }
       result = handleSubmit(data);
     } else {
@@ -40,84 +36,53 @@ function doGet(e) {
   }
 }
 
-function createSpreadsheetCopy() {
-  try {
-    // Open the template spreadsheet
-    const templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
-    const templateSheet = templateSpreadsheet.getSheetByName(TEMPLATE_SHEET_NAME);
-    
-    if (!templateSheet) {
-      console.error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in source spreadsheet`);
-      throw new Error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in the template spreadsheet`);
-    }
-    
-    // Create a new spreadsheet
-    const newSpreadsheet = SpreadsheetApp.create('SQA Data Collection Form (Copy)');
-    
-    // Get the default sheet and rename it to Results
-    const resultsSheet = newSpreadsheet.getSheets()[0];
-    resultsSheet.setName(RESULTS_SHEET_NAME);
-    
-    // Copy the template sheet to the new spreadsheet
-    templateSheet.copyTo(newSpreadsheet).setName(TEMPLATE_SHEET_NAME);
-    
-    // Set sharing permissions
-    const newFile = DriveApp.getFileById(newSpreadsheet.getId());
-    newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
-    
-    console.log("Successfully created spreadsheet copy with template");
-    
-    return {
-      status: 'success',
-      spreadsheetId: newSpreadsheet.getId(),
-      spreadsheetUrl: newFile.getUrl()
-    };
-  } catch (error) {
-    console.error('Error in createSpreadsheetCopy:', error);
-    throw new Error('Failed to create spreadsheet copy: ' + error.message);
-  }
-}
-
 function handleSubmit(data) {
   console.log("Starting handleSubmit with data:", data);
   
   try {
-    const ss = SpreadsheetApp.openById(data.spreadsheetId);
-    const templateSheet = ss.getSheetByName(TEMPLATE_SHEET_NAME);
-    
-    if (!templateSheet) {
-      throw new Error(`Sheet "${TEMPLATE_SHEET_NAME}" not found`);
-    }
-    
-    // Write data to template sheet
-    writeFacilityInfo(templateSheet, data);
-    writeLowerLimitDetection(templateSheet, data);
-    writePrecisionData(templateSheet, data);
-    writeAccuracyData(templateSheet, data);
-    writeMorphGradeFinal(templateSheet, data);
-    writeQCData(templateSheet, data);
-    
-    // Set formulas
-    setFormulas(templateSheet);
-    
-    // Ensure all calculations are completed
-    SpreadsheetApp.flush();
-    
-    // Generate PDF
+    // Format the date for the filename
     const dateObj = new Date(data.date);
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const day = String(dateObj.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
+    
+    // Sanitize facility name and serial number
     const sanitizedFacility = data.facility.replace(/[^a-zA-Z0-9]/g, '');
-    const cleanSerialNumber = data.serialNumber.trim();
+    const cleanSerialNumber = data.serialNumber.trim().replace(/[^a-zA-Z0-9]/g, '');
+    
+    // Create new filename format
     const fileName = `${formattedDate}-${cleanSerialNumber}-${sanitizedFacility}`;
     
+    // Create new spreadsheet from template
+    const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
+    const newFile = templateFile.makeCopy(fileName);
+    const ss = SpreadsheetApp.openById(newFile.getId());
+    const sheet = ss.getSheets()[0];
+    
+    // Write data to spreadsheet
+    writeFacilityInfo(sheet, data);
+    writeLowerLimitDetection(sheet, data);
+    writePrecisionData(sheet, data);
+    writeAccuracyData(sheet, data);
+    writeMorphGradeFinal(sheet, data);
+    writeQCData(sheet, data);
+    
+    // Set formulas
+    setFormulas(sheet);
+    
+    // Ensure all calculations are completed
+    SpreadsheetApp.flush();
+    
+    // Generate PDF
     const pdfBlob = ss.getAs(MimeType.PDF).setName(`${fileName}.pdf`);
     const pdfFile = DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
     
     // Send admin notification
     sendAdminNotification(data, ss.getUrl(), pdfFile.getUrl());
+    
+    // Set file permissions
+    newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     
     return {
       status: 'success',
