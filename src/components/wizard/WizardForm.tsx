@@ -14,7 +14,6 @@ interface WizardFormProps {
   handleInputChange: (section: string, field: string, value: string, index?: number) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
-  onLoadTestData: () => void;
 }
 
 export function WizardForm({
@@ -22,7 +21,6 @@ export function WizardForm({
   handleInputChange,
   onSubmit,
   isSubmitting,
-  onLoadTestData,
 }: WizardFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -32,7 +30,7 @@ export function WizardForm({
       component: (
         <FormHeader 
           formData={formData} 
-          handleInputChange={handleInputChange} 
+          handleInputChange={handleInputChange}
           hasSubmittedData={false}
         />
       )
@@ -50,31 +48,14 @@ export function WizardForm({
       title: "Precision",
       component: (
         <div className="space-y-6">
-          <PrecisionSection
-            sampleNumber={1}
-            data={formData.precision.sample1}
-            handleInputChange={handleInputChange}
-          />
-          <PrecisionSection
-            sampleNumber={2}
-            data={formData.precision.sample2}
-            handleInputChange={handleInputChange}
-          />
-          <PrecisionSection
-            sampleNumber={3}
-            data={formData.precision.sample3}
-            handleInputChange={handleInputChange}
-          />
-          <PrecisionSection
-            sampleNumber={4}
-            data={formData.precision.sample4}
-            handleInputChange={handleInputChange}
-          />
-          <PrecisionSection
-            sampleNumber={5}
-            data={formData.precision.sample5}
-            handleInputChange={handleInputChange}
-          />
+          {[1, 2, 3, 4, 5].map((sampleNumber) => (
+            <PrecisionSection
+              key={`precision-${sampleNumber}`}
+              sampleNumber={sampleNumber}
+              data={formData.precision[`sample${sampleNumber}`]}
+              handleInputChange={handleInputChange}
+            />
+          ))}
         </div>
       )
     },
@@ -95,29 +76,6 @@ export function WizardForm({
           handleInputChange={handleInputChange} 
         />
       )
-    },
-    {
-      title: "Verification",
-      component: (
-        <Card>
-          <CardHeader>
-            <CardTitle>Verification</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">Please verify all the data before submitting.</p>
-            <FormActions
-              onLoadTestData={onLoadTestData}
-              onCreateSpreadsheet={() => {}}
-              onSendEmail={() => {}}
-              isCreatingSpreadsheet={false}
-              isSendingEmail={false}
-              isSubmitting={isSubmitting}
-              hasSpreadsheet={false}
-              hasSubmittedData={false}
-            />
-          </CardContent>
-        </Card>
-      )
     }
   ];
 
@@ -133,42 +91,50 @@ export function WizardForm({
     }
   };
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit();
+  };
+
   return (
-    <div className="space-y-6">
+    <form onSubmit={handleFormSubmit} className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>{steps[currentStep].title}</CardTitle>
         </CardHeader>
         <CardContent>
-          {steps[currentStep].component}
-          <div className="flex justify-between mt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={previousStep}
-              disabled={currentStep === 0}
-            >
-              Back
-            </Button>
-            {currentStep === steps.length - 1 ? (
+          <div className="space-y-6">
+            {steps[currentStep].component}
+            <div className="flex justify-between mt-6">
               <Button
                 type="button"
-                onClick={onSubmit}
-                disabled={isSubmitting}
+                variant="outline"
+                onClick={previousStep}
+                disabled={currentStep === 0 || isSubmitting}
               >
-                {isSubmitting ? "Submitting..." : "Submit Data"}
+                Previous
               </Button>
-            ) : (
-              <Button
-                type="button"
-                onClick={nextStep}
-              >
-                Next
-              </Button>
-            )}
+              {currentStep === steps.length - 1 ? (
+                <Button
+                  type="submit"
+                  className="bg-primary text-white"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Data"}
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={nextStep}
+                  disabled={isSubmitting}
+                >
+                  Next
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </form>
   );
 }
