@@ -3,7 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { WizardForm } from "./wizard/WizardForm";
 import { FormData, GoogleScriptResponse } from "@/types/form";
 import { initialFormData, getTestData } from "@/utils/formUtils";
-import { APPS_SCRIPT_URL } from "@/config/constants";
+import { APPS_SCRIPT_URL, TEMPLATE_SHEET_NAME } from "@/config/constants";
 
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -115,7 +115,7 @@ export function SQAForm() {
       const submitData = {
         ...formData,
         spreadsheetId: currentSpreadsheetId,
-        sheetName: 'Results' // Changed to match the actual sheet name
+        sheetName: TEMPLATE_SHEET_NAME // Use the constant from config
       };
 
       console.log("Submitting form data:", submitData);
