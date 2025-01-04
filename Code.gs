@@ -1,5 +1,7 @@
 const TEMPLATE_SPREADSHEET_ID = '1baU2-peCdvKUvbJ7x_vbQsA8koQEN7VAbBGce92CCF0';
 const SUBMISSION_RECORD_SHEET_ID = '1n_TZcqcW3CyPG9QfAv4E9wDhmiT9vm0lAnzHGjd6yV4';
+const PDF_FOLDER_ID = '1anEzYB_Is4SW_xbiSxR4UJRz2SmhABOs';
+const ADMIN_EMAIL = 'ayushmokal19@gmail.com';
 
 function doGet(e) {
   const params = e.parameter;
@@ -85,6 +87,12 @@ function handleSubmit(data) {
     writePrecisionData(newSheet, data);
     writeAccuracyData(newSheet, data);
     writeLiveSamplePrecision(newSheet, data);
+    
+    // Generate PDF
+    const pdfFile = generateAndSavePDF(ss, newSheetName);
+    
+    // Send notification and log submission
+    sendAdminNotification(data, ss.getUrl(), pdfFile.getUrl());
     logSubmission(data);
 
     return {
@@ -205,7 +213,37 @@ function generateUniqueSheetName(ss, data) {
   return sheetName;
 }
 
-function logSubmission(data) {
+function generateAndSavePDF(ss, sheetName) {
+  const pdfOptions = {
+    fitw: true,
+    portrait: true,
+    size: 'A4',
+    gridlines: false
+  };
+  
+  const pdfBlob = ss.getAs(MimeType.PDF).setName(`${sheetName}.pdf`);
+  return DriveApp.getFolderById(PDF_FOLDER_ID).createFile(pdfBlob);
+}
+
+function sendAdminNotification(data, spreadsheetUrl, pdfUrl) {
+  const subject = 'New SQA Data Submission - ' + data.facility;
+  const body = `New SQA data submission received:
+    
+Facility: ${data.facility}
+Date: ${data.date}
+Serial Number: ${data.serialNumber}
+Batch ID: ${data.batchId}
+Client Email: ${data.emailTo || 'Not provided'}
+Client Phone: ${data.phone || 'Not provided'}
+
+Spreadsheet: ${spreadsheetUrl}
+PDF: ${pdfUrl}`;
+
+  GmailApp.sendEmail(ADMIN_EMAIL, subject, body);
+  logSubmission(data, spreadsheetUrl, pdfUrl);
+}
+
+function logSubmission(data, spreadsheetUrl, pdfUrl) {
   try {
     const logSheet = SpreadsheetApp.openById(SUBMISSION_RECORD_SHEET_ID).getActiveSheet();
     const timestamp = new Date();
@@ -215,7 +253,11 @@ function logSubmission(data) {
       data.facility,
       data.date,
       data.serialNumber,
-      data.batchId
+      data.batchId,
+      data.emailTo || '',
+      data.phone || '',
+      spreadsheetUrl,
+      pdfUrl
     ]);
     
     console.log("Submission logged successfully");
