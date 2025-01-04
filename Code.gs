@@ -41,22 +41,32 @@ function doGet(e) {
 
 function createSpreadsheetCopy() {
   try {
+    // Open the template spreadsheet first to verify it exists and has the correct sheet
+    const templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
+    const templateSheet = templateSpreadsheet.getSheetByName(TEMPLATE_SHEET_NAME);
+    
+    if (!templateSheet) {
+      throw new Error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in the template spreadsheet`);
+    }
+    
+    // Create the copy
     const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
     const newFile = templateFile.makeCopy('SQA Data Collection Form (Copy)');
     const newSpreadsheet = SpreadsheetApp.openById(newFile.getId());
     
-    // Ensure the template sheet exists in the new spreadsheet
-    const templateSheet = newSpreadsheet.getSheetByName(TEMPLATE_SHEET_NAME);
-    if (!templateSheet) {
+    // Verify the template sheet exists in the new spreadsheet
+    const newTemplateSheet = newSpreadsheet.getSheetByName(TEMPLATE_SHEET_NAME);
+    if (!newTemplateSheet) {
       throw new Error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in the new spreadsheet`);
     }
     
+    // Set sharing permissions
     newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     
     return {
       status: 'success',
       spreadsheetId: newFile.getId(),
-      spreadsheetUrl: newSpreadsheet.getUrl()
+      spreadsheetUrl: newFile.getUrl()
     };
   } catch (error) {
     console.error('Error in createSpreadsheetCopy:', error);
