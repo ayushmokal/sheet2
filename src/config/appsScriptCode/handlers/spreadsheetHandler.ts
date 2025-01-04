@@ -27,7 +27,6 @@ function writeFacilityInfo(sheet, data) {
 }
 
 function writeLinearityData(sheet, data) {
-  // Write SQA values
   for (let i = 0; i < data.linearity.sqa.length; i++) {
     sheet.getRange('D' + (12 + i)).setValue(data.linearity.sqa[i]);
   }
@@ -79,7 +78,6 @@ function writePrecisionData(sheet, data) {
 }
 
 function writeAccuracyData(sheet, data) {
-  // Write Manual values
   for (let i = 0; i < data.accuracy.manual.length; i++) {
     sheet.getRange('C' + (119 + i)).setValue(data.accuracy.manual[i]);
   }

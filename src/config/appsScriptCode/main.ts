@@ -1,5 +1,19 @@
+import { spreadsheetHandlerScript } from './handlers/spreadsheetHandler';
+import { pdfHandlerScript } from './handlers/pdfHandler';
+import { emailHandlerScript } from './handlers/emailHandler';
+import { dataHandlerScript } from './handlers/dataHandler';
+
+export const mainScript = `
 const TEMPLATE_SPREADSHEET_ID = '1baU2-peCdvKUvbJ7x_vbQsA8koQEN7VAbBGce92CCF0';
 const SUBMISSION_RECORD_SHEET_ID = '1n_TZcqcW3CyPG9QfAv4E9wDhmiT9vm0lAnzHGjd6yV4';
+
+${spreadsheetHandlerScript}
+
+${dataHandlerScript}
+
+${pdfHandlerScript}
+
+${emailHandlerScript}
 
 function doGet(e) {
   const params = e.parameter;
@@ -128,4 +142,4 @@ function logSubmission(data) {
   } catch (error) {
     console.error("Error logging submission:", error);
   }
-}
+}`;
