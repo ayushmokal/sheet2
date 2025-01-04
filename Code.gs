@@ -3,6 +3,7 @@ const ADMIN_EMAIL = 'ayushmokal13@gmail.com';
 const PDF_FOLDER_ID = '1Z9dygHEDb-ZOSzAVqxIFTu7iJ7ADgWdD';
 const EMAIL_LOG_SPREADSHEET_ID = '1mnPy-8Kzp_ffbU6H-0jpQH0CIf0F4wb0pplK-KQxDbk';
 const TEMPLATE_SHEET_NAME = 'template 2';
+const RESULTS_SHEET_NAME = 'Results';
 
 function doGet(e) {
   const params = e.parameter;
@@ -41,7 +42,7 @@ function doGet(e) {
 
 function createSpreadsheetCopy() {
   try {
-    // Open the template spreadsheet first to verify it exists and has the correct sheet
+    // Open the template spreadsheet
     const templateSpreadsheet = SpreadsheetApp.openById(TEMPLATE_SPREADSHEET_ID);
     const templateSheet = templateSpreadsheet.getSheetByName(TEMPLATE_SHEET_NAME);
     
@@ -49,23 +50,23 @@ function createSpreadsheetCopy() {
       throw new Error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in the template spreadsheet`);
     }
     
-    // Create the copy
-    const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
-    const newFile = templateFile.makeCopy('SQA Data Collection Form (Copy)');
-    const newSpreadsheet = SpreadsheetApp.openById(newFile.getId());
+    // Create a new spreadsheet
+    const newSpreadsheet = SpreadsheetApp.create('SQA Data Collection Form (Copy)');
     
-    // Verify the template sheet exists in the new spreadsheet
-    const newTemplateSheet = newSpreadsheet.getSheetByName(TEMPLATE_SHEET_NAME);
-    if (!newTemplateSheet) {
-      throw new Error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in the new spreadsheet`);
-    }
+    // Get the default sheet and rename it to Results
+    const resultsSheet = newSpreadsheet.getSheets()[0];
+    resultsSheet.setName(RESULTS_SHEET_NAME);
+    
+    // Copy the template sheet to the new spreadsheet
+    templateSheet.copyTo(newSpreadsheet).setName(TEMPLATE_SHEET_NAME);
     
     // Set sharing permissions
+    const newFile = DriveApp.getFileById(newSpreadsheet.getId());
     newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     
     return {
       status: 'success',
-      spreadsheetId: newFile.getId(),
+      spreadsheetId: newSpreadsheet.getId(),
       spreadsheetUrl: newFile.getUrl()
     };
   } catch (error) {
@@ -79,22 +80,22 @@ function handleSubmit(data) {
   
   try {
     const ss = SpreadsheetApp.openById(data.spreadsheetId);
-    const sheet = ss.getSheetByName(TEMPLATE_SHEET_NAME); // Use the constant here
+    const templateSheet = ss.getSheetByName(TEMPLATE_SHEET_NAME);
     
-    if (!sheet) {
+    if (!templateSheet) {
       throw new Error(`Sheet "${TEMPLATE_SHEET_NAME}" not found`);
     }
     
-    // Write data to spreadsheet
-    writeFacilityInfo(sheet, data);
-    writeLowerLimitDetection(sheet, data);
-    writePrecisionData(sheet, data);
-    writeAccuracyData(sheet, data);
-    writeMorphGradeFinal(sheet, data);
-    writeQCData(sheet, data);
+    // Write data to template sheet
+    writeFacilityInfo(templateSheet, data);
+    writeLowerLimitDetection(templateSheet, data);
+    writePrecisionData(templateSheet, data);
+    writeAccuracyData(templateSheet, data);
+    writeMorphGradeFinal(templateSheet, data);
+    writeQCData(templateSheet, data);
     
     // Set formulas
-    setFormulas(sheet);
+    setFormulas(templateSheet);
     
     // Ensure all calculations are completed
     SpreadsheetApp.flush();
