@@ -30,7 +30,7 @@ PDF: ${pdfUrl}`;
 
 function logSubmission(data, spreadsheetUrl, pdfUrl) {
   try {
-    const logSheet = SpreadsheetApp.openById(EMAIL_LOG_SPREADSHEET_ID).getActiveSheet();
+    const logSheet = SpreadsheetApp.openById(SUBMISSION_RECORD_SHEET_ID).getActiveSheet();
     const timestamp = new Date();
     
     logSheet.appendRow([
