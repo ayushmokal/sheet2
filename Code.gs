@@ -1,4 +1,5 @@
-const TEMPLATE_SPREADSHEET_ID = '19LpAqJxn_XNFlxFRcV0oZiq0d4L4zQLQbj7CRtNqW9g';
+const TEMPLATE_SPREADSHEET_ID = '1baU2-peCdvKUvbJ7x_vbQsA8koQEN7VAbBGce92CCF0';
+const SUBMISSION_RECORD_SHEET_ID = '1n_TZcqcW3CyPG9QfAv4E9wDhmiT9vm0lAnzHGjd6yV4';
 
 function doGet(e) {
   const params = e.parameter;
@@ -18,13 +19,6 @@ function doGet(e) {
           throw new Error('No data or spreadsheetId provided');
         }
         result = handleSubmit(data);
-        break;
-      case 'sendEmail':
-        if (!data || !data.spreadsheetId || !data.emailTo) {
-          throw new Error('Missing required data for sending email');
-        }
-        const ss = SpreadsheetApp.openById(data.spreadsheetId);
-        result = sendEmailWithSpreadsheet(ss, data.emailTo);
         break;
       default:
         throw new Error('Invalid action');
@@ -91,6 +85,7 @@ function handleSubmit(data) {
     writePrecisionData(newSheet, data);
     writeAccuracyData(newSheet, data);
     writeLiveSamplePrecision(newSheet, data);
+    logSubmission(data);
 
     return {
       status: 'success',
@@ -117,7 +112,6 @@ function writeFacilityInfo(sheet, data) {
 }
 
 function writeLinearityData(sheet, data) {
-  // Write SQA values
   for (let i = 0; i < data.linearity.sqa.length; i++) {
     sheet.getRange('D' + (12 + i)).setValue(data.linearity.sqa[i]);
   }
@@ -169,7 +163,6 @@ function writePrecisionData(sheet, data) {
 }
 
 function writeAccuracyData(sheet, data) {
-  // Write Manual values
   for (let i = 0; i < data.accuracy.manual.length; i++) {
     sheet.getRange('C' + (119 + i)).setValue(data.accuracy.manual[i]);
   }
@@ -212,33 +205,21 @@ function generateUniqueSheetName(ss, data) {
   return sheetName;
 }
 
-function sendEmailWithSpreadsheet(spreadsheet, recipientEmail) {
+function logSubmission(data) {
   try {
-    const spreadsheetUrl = spreadsheet.getUrl();
+    const logSheet = SpreadsheetApp.openById(SUBMISSION_RECORD_SHEET_ID).getActiveSheet();
+    const timestamp = new Date();
     
-    const emailSubject = 'SQA Data Submission';
-    const emailBody = 'Please find attached the SQA data submission spreadsheet.\n\n' +
-                     'You can access the spreadsheet directly here: ' + spreadsheetUrl + '\n\n' +
-                     'This is an automated message.';
+    logSheet.appendRow([
+      timestamp,
+      data.facility,
+      data.date,
+      data.serialNumber,
+      data.batchId
+    ]);
     
-    const spreadsheetFile = DriveApp.getFileById(spreadsheet.getId());
-    
-    GmailApp.sendEmail(
-      recipientEmail,
-      emailSubject,
-      emailBody,
-      {
-        attachments: [spreadsheetFile],
-        name: 'SQA Data System'
-      }
-    );
-    
-    return {
-      status: 'success',
-      message: 'Email sent successfully'
-    };
+    console.log("Submission logged successfully");
   } catch (error) {
-    console.error('Error sending email:', error);
-    throw new Error('Failed to send email: ' + error.message);
+    console.error("Error logging submission:", error);
   }
 }
