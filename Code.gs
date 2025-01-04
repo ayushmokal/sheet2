@@ -47,6 +47,7 @@ function createSpreadsheetCopy() {
     const templateSheet = templateSpreadsheet.getSheetByName(TEMPLATE_SHEET_NAME);
     
     if (!templateSheet) {
+      console.error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in source spreadsheet`);
       throw new Error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in the template spreadsheet`);
     }
     
@@ -63,6 +64,8 @@ function createSpreadsheetCopy() {
     // Set sharing permissions
     const newFile = DriveApp.getFileById(newSpreadsheet.getId());
     newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+    
+    console.log("Successfully created spreadsheet copy with template");
     
     return {
       status: 'success',
