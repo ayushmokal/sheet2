@@ -45,6 +45,12 @@ function createSpreadsheetCopy() {
     const newFile = templateFile.makeCopy('SQA Data Collection Form (Copy)');
     const newSpreadsheet = SpreadsheetApp.openById(newFile.getId());
     
+    // Ensure the template sheet exists in the new spreadsheet
+    const templateSheet = newSpreadsheet.getSheetByName(TEMPLATE_SHEET_NAME);
+    if (!templateSheet) {
+      throw new Error(`Template sheet "${TEMPLATE_SHEET_NAME}" not found in the new spreadsheet`);
+    }
+    
     newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
     
     return {
@@ -63,10 +69,10 @@ function handleSubmit(data) {
   
   try {
     const ss = SpreadsheetApp.openById(data.spreadsheetId);
-    const sheet = ss.getSheetByName(TEMPLATE_SHEET_NAME);
+    const sheet = ss.getSheetByName(TEMPLATE_SHEET_NAME); // Use the constant here
     
     if (!sheet) {
-      throw new Error('Template sheet not found');
+      throw new Error(`Sheet "${TEMPLATE_SHEET_NAME}" not found`);
     }
     
     // Write data to spreadsheet
