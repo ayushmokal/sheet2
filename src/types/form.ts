@@ -4,6 +4,7 @@ export interface FormData {
   serialNumber: string;
   batchId: string;
   emailTo?: string;
+  phone?: string;
   linearity: {
     sqa: string[];
   };

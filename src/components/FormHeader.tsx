@@ -8,6 +8,7 @@ interface FormHeaderProps {
     serialNumber: string;
     batchId: string;
     emailTo?: string;
+    phone?: string;
   };
   handleInputChange: (section: string, field: string, value: string) => void;
   hasSubmittedData: boolean;
@@ -54,17 +55,24 @@ export function FormHeader({ formData, handleInputChange, hasSubmittedData }: Fo
               required
             />
           </div>
-          {hasSubmittedData && (
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">Email Results To</label>
-              <Input
-                type="email"
-                value={formData.emailTo || ''}
-                onChange={(e) => handleInputChange("emailTo", "", e.target.value)}
-                placeholder="Enter email address"
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Contact Email (for records only)</label>
+            <Input
+              type="email"
+              value={formData.emailTo || ''}
+              onChange={(e) => handleInputChange("emailTo", "", e.target.value)}
+              placeholder="Enter email address"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Contact Phone (for records only)</label>
+            <Input
+              type="tel"
+              value={formData.phone || ''}
+              onChange={(e) => handleInputChange("phone", "", e.target.value)}
+              placeholder="Enter phone number"
+            />
+          </div>
         </div>
       </CardContent>
     </Card>

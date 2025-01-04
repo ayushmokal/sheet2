@@ -4,6 +4,7 @@ export const initialFormData = {
   serialNumber: "",
   batchId: "",
   emailTo: "",
+  phone: "",
   linearity: {
     sqa: Array(6).fill("")
   },
@@ -52,6 +53,7 @@ export const getTestData = () => ({
   serialNumber: "TEST123",
   batchId: "BATCH001",
   emailTo: "test@example.com",
+  phone: "123-456-7890",
   linearity: {
     sqa: ["1", "2", "3", "4", "5", "6"]
   },
