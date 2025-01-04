@@ -14,6 +14,7 @@ interface WizardFormProps {
   handleInputChange: (section: string, field: string, value: string, index?: number) => void;
   onSubmit: () => void;
   isSubmitting: boolean;
+  onLoadTestData: () => void;
 }
 
 export function WizardForm({
@@ -21,6 +22,7 @@ export function WizardForm({
   handleInputChange,
   onSubmit,
   isSubmitting,
+  onLoadTestData,
 }: WizardFormProps) {
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -115,13 +117,23 @@ export function WizardForm({
                 Previous
               </Button>
               {currentStep === steps.length - 1 ? (
-                <Button
-                  type="submit"
-                  className="bg-primary text-white"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Submitting..." : "Submit Data"}
-                </Button>
+                <div className="space-x-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onLoadTestData}
+                    disabled={isSubmitting}
+                  >
+                    Load Test Data
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-primary text-white"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit Data"}
+                  </Button>
+                </div>
               ) : (
                 <Button
                   type="button"
