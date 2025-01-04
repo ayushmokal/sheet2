@@ -115,7 +115,7 @@ export function SQAForm() {
       const submitData = {
         ...formData,
         spreadsheetId: currentSpreadsheetId,
-        sheetName: 'Template'
+        sheetName: 'SQA Data Collection Form' // Changed from 'Template' to match the actual sheet name
       };
 
       console.log("Submitting form data:", submitData);
