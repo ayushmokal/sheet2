@@ -32,6 +32,25 @@ export interface FormData {
   };
   accuracy: {
     manual: string[];
+    morphGradeFinal: {
+      tp: string;
+      tn: string;
+      fp: string;
+      fn: string;
+    };
+    sqa: string[];
+    sqaMotility: string[];
+    manualMotility: string[];
+    sqaMorph: string[];
+    manualMorph: string[];
+  };
+  lowerLimitDetection: {
+    conc: string[];
+    msc: string[];
+  };
+  qc: {
+    level1: string[];
+    level2: string[];
   };
   liveSamplePrecision: {
     set1: {
@@ -53,4 +72,5 @@ export interface GoogleScriptResponse {
   spreadsheetId?: string;
   spreadsheetUrl?: string;
   sheetName?: string;
+  pdfUrl?: string;
 }
