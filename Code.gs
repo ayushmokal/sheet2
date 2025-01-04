@@ -12,13 +12,18 @@ function doGet(e) {
   let result;
   
   try {
-    if (action === 'submit') {
-      if (!data) {
-        throw new Error('No data provided');
-      }
-      result = handleSubmit(data);
-    } else {
-      throw new Error('Invalid action');
+    switch(action) {
+      case 'submit':
+        if (!data) {
+          throw new Error('No data provided');
+        }
+        result = handleSubmit(data);
+        break;
+      case 'createCopy':
+        result = createSpreadsheetCopy();
+        break;
+      default:
+        throw new Error('Invalid action');
     }
     
     return ContentService.createTextOutput(callback + '(' + JSON.stringify(result) + ')')
@@ -33,6 +38,27 @@ function doGet(e) {
     
     return ContentService.createTextOutput(callback + '(' + JSON.stringify(errorResponse) + ')')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+}
+
+function createSpreadsheetCopy() {
+  try {
+    const templateFile = DriveApp.getFileById(TEMPLATE_SPREADSHEET_ID);
+    const newFile = templateFile.makeCopy('SQA Data Template Copy');
+    const ss = SpreadsheetApp.openById(newFile.getId());
+    
+    // Set file permissions
+    newFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.EDIT);
+    
+    return {
+      status: 'success',
+      message: 'Spreadsheet created successfully',
+      spreadsheetId: newFile.getId(),
+      spreadsheetUrl: ss.getUrl()
+    };
+  } catch (error) {
+    console.error('Error creating spreadsheet copy:', error);
+    throw error;
   }
 }
 
@@ -269,3 +295,4 @@ PDF: ${pdfUrl}`;
   GmailApp.sendEmail(ADMIN_EMAIL, subject, body);
   logEmailSend(data, spreadsheetUrl, pdfUrl);
 }
+
