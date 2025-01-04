@@ -8,6 +8,7 @@ import { APPS_SCRIPT_URL } from "@/config/constants";
 export function SQAForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [spreadsheetId, setSpreadsheetId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleInputChange = (
@@ -51,11 +52,74 @@ export function SQAForm() {
     });
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    console.log("Submitting form data:", formData);
+  const createSpreadsheet = async () => {
+    console.log("Creating spreadsheet...");
+    const callbackName = `callback_${Date.now()}`;
 
     try {
+      const responsePromise = new Promise<GoogleScriptResponse>((resolve, reject) => {
+        (window as any)[callbackName] = (response: GoogleScriptResponse) => {
+          console.log("Received createCopy response:", response);
+          resolve(response);
+          delete (window as any)[callbackName];
+        };
+
+        const script = document.createElement('script');
+        script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=createCopy`;
+        
+        script.onerror = () => {
+          console.error("Script loading failed");
+          reject(new Error('Failed to load the script'));
+          delete (window as any)[callbackName];
+        };
+
+        document.body.appendChild(script);
+      });
+
+      const response = await responsePromise;
+      
+      if (response.status === 'success' && response.spreadsheetId) {
+        console.log("Spreadsheet created:", response.spreadsheetId);
+        setSpreadsheetId(response.spreadsheetId);
+        toast({
+          title: "Success",
+          description: "Spreadsheet created successfully.",
+        });
+        return response.spreadsheetId;
+      } else {
+        throw new Error(response.message || 'Failed to create spreadsheet');
+      }
+    } catch (error) {
+      console.error('Error creating spreadsheet:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create spreadsheet. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    console.log("Starting submission process...");
+
+    try {
+      // Create spreadsheet if not already created
+      const currentSpreadsheetId = spreadsheetId || await createSpreadsheet();
+      
+      if (!currentSpreadsheetId) {
+        throw new Error('No spreadsheet ID available');
+      }
+
+      const submitData = {
+        ...formData,
+        spreadsheetId: currentSpreadsheetId,
+        sheetName: 'Template'
+      };
+
+      console.log("Submitting form data:", submitData);
+
       const callbackName = `callback_${Date.now()}`;
       console.log("Using callback name:", callbackName);
 
@@ -67,7 +131,7 @@ export function SQAForm() {
         };
 
         const script = document.createElement('script');
-        const encodedData = encodeURIComponent(JSON.stringify(formData));
+        const encodedData = encodeURIComponent(JSON.stringify(submitData));
         script.src = `${APPS_SCRIPT_URL}?callback=${callbackName}&action=submit&data=${encodedData}`;
         console.log("Request URL:", script.src);
         
