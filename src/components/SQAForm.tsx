@@ -171,7 +171,7 @@ export function SQAForm() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-8 text-center">
-          SQA Precision / Accuracy / Lower Limit Detection Study
+          SQA PRECISION, LINEARITY, & ACCURACY STUDY
         </h1>
         <WizardForm
           formData={formData}
