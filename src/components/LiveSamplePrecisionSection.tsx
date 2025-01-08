@@ -23,39 +23,49 @@ export function LiveSamplePrecisionSection({ data, handleInputChange }: LiveSamp
     const setData = setNumber === 1 ? data.set1 : data.set2;
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <h4 className="font-medium">Set {setNumber}</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
+          {/* Headers */}
+          <div className="font-medium text-sm">Sample #</div>
+          <div className="font-medium text-sm">Conc. (M/mL)</div>
+          <div className="font-medium text-sm">Motility (%)</div>
+          <div className="font-medium text-sm">Morphology (%)</div>
+
+          {/* Rows */}
           {[1, 2, 3, 4, 5].map((num, index) => (
-            <div key={`set${setNumber}-${num}`} className="grid grid-cols-1 gap-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Conc. (M/mL) {num}</label>
+            <>
+              <div key={`sample-${num}`} className="flex items-center">
+                {num}
+              </div>
+              <div key={`conc-${num}`}>
                 <Input
                   type="number"
                   step="0.1"
                   value={setData.conc[index]}
                   onChange={(e) => handleInputChange(section, "conc", e.target.value, index)}
+                  className="w-full"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Motility (%) {num}</label>
+              <div key={`motility-${num}`}>
                 <Input
                   type="number"
                   step="0.1"
                   value={setData.motility[index]}
                   onChange={(e) => handleInputChange(section, "motility", e.target.value, index)}
+                  className="w-full"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Morphology (%) {num}</label>
+              <div key={`morphology-${num}`}>
                 <Input
                   type="number"
                   step="0.1"
                   value={setData.morphology[index]}
                   onChange={(e) => handleInputChange(section, "morphology", e.target.value, index)}
+                  className="w-full"
                 />
               </div>
-            </div>
+            </>
           ))}
         </div>
       </div>
