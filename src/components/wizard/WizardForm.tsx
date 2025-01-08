@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormHeader } from "../FormHeader";
 import { LinearitySection } from "../LinearitySection";
 import { PrecisionSection } from "../PrecisionSection";
-import { AccuracySection } from "../AccuracySection";
 import { LiveSamplePrecisionSection } from "../LiveSamplePrecisionSection";
 import { FormData } from "@/types/form";
 import { FormActions } from "../FormActions";
@@ -59,15 +58,6 @@ export function WizardForm({
             />
           ))}
         </div>
-      )
-    },
-    {
-      title: "Accuracy",
-      component: (
-        <AccuracySection 
-          data={formData.accuracy} 
-          handleInputChange={handleInputChange} 
-        />
       )
     },
     {
