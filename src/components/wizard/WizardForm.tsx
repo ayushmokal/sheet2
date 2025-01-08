@@ -78,6 +78,32 @@ export function WizardForm({
           handleInputChange={handleInputChange} 
         />
       )
+    },
+    {
+      title: "Verification",
+      component: (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Verification</h2>
+          <p className="text-gray-600">Please verify all the data before submitting.</p>
+          <div className="flex justify-end space-x-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCurrentStep(currentStep - 1)}
+              disabled={isSubmitting}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              className="bg-primary text-white"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Data"}
+            </Button>
+          </div>
+        </div>
+      )
     }
   ];
 
