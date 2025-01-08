@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 
 interface AccuracySectionProps {
   data: {
@@ -8,7 +7,7 @@ interface AccuracySectionProps {
   handleInputChange: (section: string, field: string, value: string, index: number) => void;
 }
 
-export function AccuracySection({ data, handleInputChange }: AccuracySectionProps) {
+export function AccuracySection({ data }: AccuracySectionProps) {
   return (
     <Card className="mt-6">
       <CardHeader>
@@ -19,12 +18,9 @@ export function AccuracySection({ data, handleInputChange }: AccuracySectionProp
           {[1, 2, 3, 4, 5].map((num, index) => (
             <div key={`accuracy-${num}`} className="space-y-2">
               <label className="text-sm font-medium">Manual Value {num}</label>
-              <Input
-                type="number"
-                step="0.1"
-                value={data.manual[index]}
-                onChange={(e) => handleInputChange("accuracy", "manual", e.target.value, index)}
-              />
+              <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                {data.manual[index] || '-'}
+              </div>
             </div>
           ))}
         </div>
